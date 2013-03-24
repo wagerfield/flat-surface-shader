@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+
+    <meta charset="utf-8"/>
+    <title>Flat Surface Shader</title>
+    <meta name="author" content="Matthew Wagerfield">
+    <meta name="description" content="Simple, fast Flat Surface Shader using the 2D context of a Canvas element.">
+    <meta name="keywords" content="flat,surface,shader,Float32Array">
+    <link rel="stylesheet" type="text/css" href="assets/styles/styles.css">
+
+  </head>
+  <body>
+
+    <div id="container" class="container">
+      <canvas id="canvas" class="canvas">
+      </canvas>
+      <div id="vignette" class="overlay vignette">
+      </div>
+      <div id="noise" class="overlay noise">
+      </div>
+      <div id="ui" class="wrapper">
+        <header id="header" class="header">
+          <img class="logo" src="assets/graphics/logo.svg">
+          <h1>Flat Surface Shader</h1>
+        </header>
+        <article id="information" class="information">
+          <p>Admit it, 3D is cool. But, you know what's cooler? 2D.<br>I love WebGL, but unfortunately it doesn't work everywhere.</p>
+          <p>This lighting simulation uses the 2D context of a canvas element to draw the triangles and native Float32Arrays to store numerical data for highly optimised calculations.</p>
+          <p>This is a collaborative effort between<br><a href="https://github.com/wagerfield">Matthew Wagerfield</a> and <a href="http://www.behance.net/vanschneider">Tobias van Schneider</a> – a couple of pandas trying to make the web a more magical place.</p>
+        </article>
+        <footer id="footer" class="footer">
+          <a href="https://twitter.com/mwagerfield" class="twitter-follow-button" data-show-count="false">Follow <span class="handle">@mwagerfield</span></a> &amp;
+          <a href="https://twitter.com/schneidertobias" class="twitter-follow-button" data-show-count="false">Follow <span class="handle">@schneidertobias</span></a>
+        </footer>
+      </div>
+    </div>
+    <div id="controls" class="controls">
+    </div>
+
+    <script src="assets/scripts/libraries/prefixfree.min.js"></script>
+    <script src="assets/scripts/libraries/dat.gui.min.js"></script>
+    <script src="assets/scripts/libraries/raf.min.js"></script>
+    <script src="deploy/fss.min.js"></script>
+    <script src="assets/scripts/example.js"></script>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+  </body>
+</html>
