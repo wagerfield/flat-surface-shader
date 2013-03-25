@@ -44,6 +44,15 @@
   };
 
   //------------------------------
+  // Render Properties
+  //------------------------------
+  var SVG = 'svg';
+  var CANVAS = 'canvas';
+  var RENDER = {
+    renderer: CANVAS
+  };
+
+  //------------------------------
   // Export Properties
   //------------------------------
   var EXPORT = {
@@ -79,7 +88,7 @@
       update();
       render();
 
-      window.open(canvas.toDataURL(), '_blank');
+      window.open(canvasRenderer.element.toDataURL(), '_blank');
 
       LIGHT.draw = true;
       LIGHT.autopilot = autopilot;
@@ -107,6 +116,7 @@
   var controls = document.getElementById('controls');
   var ui = document.getElementById('ui');
   var renderer, scene, mesh, geometry, material;
+  var canvasRenderer, svgRenderer;
   var gui, autopilotController;
 
   //------------------------------
@@ -124,9 +134,25 @@
   }
 
   function createRenderer() {
-    renderer = new FSS.CanvasRenderer();
+    svgRenderer = new FSS.SVGRenderer();
+    canvasRenderer = new FSS.CanvasRenderer();
+    setRenderer(RENDER.renderer);
+  }
+
+  function setRenderer(index) {
+    if (renderer) {
+      container.removeChild(renderer.element);
+    }
+    switch(index) {
+      case CANVAS:
+        renderer = canvasRenderer;
+        break;
+      case SVG:
+        renderer = svgRenderer;
+        break;
+    }
     renderer.setSize(container.offsetWidth, container.offsetHeight);
-    container.appendChild(renderer.element);
+    container.insertBefore(renderer.element, container.firstChild);
   }
 
   function createScene() {
@@ -251,7 +277,7 @@
     renderer.render(scene);
 
     // Draw Lights
-    if (LIGHT.draw) {
+    if (LIGHT.draw && RENDER.renderer === CANVAS) {
       var l, lx, ly, light;
       renderer.context.lineWidth = 0.5;
       for (l = scene.lights.length - 1; l >= 0; l--) {
@@ -285,12 +311,14 @@
 
     // Create folders
     uiFolder = gui.addFolder('UI');
+    renderFolder = gui.addFolder('Render');
     meshFolder = gui.addFolder('Mesh');
     lightFolder = gui.addFolder('Light');
     exportFolder = gui.addFolder('Export');
 
     // Open folders
     uiFolder.open();
+    renderFolder.open();
     // meshFolder.open();
     lightFolder.open();
     // exportFolder.open();
@@ -299,6 +327,12 @@
     controller = uiFolder.add(UI, 'show');
     controller.onChange(function(value) {
       ui.className = value ? 'wrapper' : 'wrapper hide';
+    });
+
+    // Add Render Controls
+    controller = renderFolder.add(RENDER, 'renderer', {canvas:CANVAS, svg:SVG});
+    controller.onChange(function(value) {
+      setRenderer(value);
     });
 
     // Add Mesh Controls
