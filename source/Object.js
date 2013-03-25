@@ -2,13 +2,13 @@
  * @class Object
  * @author Matthew Wagerfield
  */
-FSS.Object = function() {
-  this.position = FSS.Vector3.create();
+SHARD.Object = function() {
+  this.position = SHARD.Vector3.create();
 };
 
-FSS.Object.prototype = {
+SHARD.Object.prototype = {
   setPosition: function(x, y, z) {
-    FSS.Vector3.set(this.position, x, y, z);
+    SHARD.Vector3.set(this.position, x, y, z);
     return this;
   }
 };

@@ -4,12 +4,12 @@ var uglify = require('uglify-js');
 
 // Settings
 var FILE_ENCODING = 'utf-8',
-    PROJECT_NAME  = 'fss',
+    PROJECT_NAME  = 'shard',
     LICENSE       = '../LICENSE.md',
     SOURCE_DIR    = '../source',
     OUTPUT_DIR    = '../deploy',
     SCRIPTS       = [
-        'FSS.js',
+        'SHARD.js',
         'Math.js',
         'Vector3.js',
         'Color.js',

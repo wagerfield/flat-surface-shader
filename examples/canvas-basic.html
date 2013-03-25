@@ -24,16 +24,16 @@
     <div id="container" class="container">
     </div>
 
-    <script src="../deploy/fss.js"></script>
+    <script src="../deploy/shard.js"></script>
     <script>
 
     var container = document.getElementById('container');
-    var renderer = new FSS.CanvasRenderer();
-    var scene = new FSS.Scene();
-    var light = new FSS.Light('#111122', '#FF0022');
-    var geometry = new FSS.Plane(600, 400, 6, 4);
-    var material = new FSS.Material('#FFFFFF', '#FFFFFF');
-    var mesh = new FSS.Mesh(geometry, material);
+    var renderer = new SHARD.CanvasRenderer();
+    var scene = new SHARD.Scene();
+    var light = new SHARD.Light('#111122', '#FF0022');
+    var geometry = new SHARD.Plane(600, 400, 6, 4);
+    var material = new SHARD.Material('#FFFFFF', '#FFFFFF');
+    var mesh = new SHARD.Mesh(geometry, material);
     var now, start = Date.now();
 
     function initialise() {

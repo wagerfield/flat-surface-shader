@@ -2,7 +2,7 @@
  * Defines the Flat Surface Shader namespace for all the awesomeness to exist upon.
  * @author Matthew Wagerfield
  */
-FSS = {
+SHARD = {
   FRONT  : 0,
   BACK   : 1,
   DOUBLE : 2,
@@ -13,7 +13,7 @@ FSS = {
  * @class Array
  * @author Matthew Wagerfield
  */
-FSS.Array = typeof Float32Array === 'function' ? Float32Array : Array;
+SHARD.Array = typeof Float32Array === 'function' ? Float32Array : Array;
 
 /**
  * Request Animation Frame Polyfill.
