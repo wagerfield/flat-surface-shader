@@ -2,30 +2,30 @@
  * @class SVG Renderer
  * @author Matthew Wagerfield
  */
-FSS.SVGRenderer = function() {
-  FSS.Renderer.call(this);
-  this.element = document.createElementNS(FSS.SVGNS, 'svg');
+SHARD.SVGRenderer = function() {
+  SHARD.Renderer.call(this);
+  this.element = document.createElementNS(SHARD.SVGNS, 'svg');
   this.element.style.display = 'block';
   this.setSize(300, 150);
 };
 
-FSS.SVGRenderer.prototype = Object.create(FSS.Renderer.prototype);
+SHARD.SVGRenderer.prototype = Object.create(SHARD.Renderer.prototype);
 
-FSS.SVGRenderer.prototype.setSize = function(width, height) {
-  FSS.Renderer.prototype.setSize.call(this, width, height);
+SHARD.SVGRenderer.prototype.setSize = function(width, height) {
+  SHARD.Renderer.prototype.setSize.call(this, width, height);
   this.element.setAttribute('width', width);
   this.element.setAttribute('height', height);
   return this;
 };
 
-FSS.SVGRenderer.prototype.clear = function() {
-  FSS.Renderer.prototype.clear.call(this);
+SHARD.SVGRenderer.prototype.clear = function() {
+  SHARD.Renderer.prototype.clear.call(this);
   this.element.innerHTML = '';
   return this;
 };
 
-FSS.SVGRenderer.prototype.render = function(scene) {
-  FSS.Renderer.prototype.render.call(this, scene);
+SHARD.SVGRenderer.prototype.render = function(scene) {
+  SHARD.Renderer.prototype.render.call(this, scene);
   var m,mesh, t,triangle, points, style;
 
   // Update Meshes
@@ -52,11 +52,11 @@ FSS.SVGRenderer.prototype.render = function(scene) {
   return this;
 };
 
-FSS.SVGRenderer.prototype.formatPoint = function(vertex) {
+SHARD.SVGRenderer.prototype.formatPoint = function(vertex) {
   return (this.halfWidth+vertex.position[0])+','+(this.halfHeight+vertex.position[1]);
 };
 
-FSS.SVGRenderer.prototype.formatStyle = function(color) {
+SHARD.SVGRenderer.prototype.formatStyle = function(color) {
   var style = 'fill:'+color+';';
   style += 'stroke:'+color+';';
   return style;

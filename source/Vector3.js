@@ -2,9 +2,9 @@
  * @object Vector3
  * @author Matthew Wagerfield
  */
-FSS.Vector3 = {
+SHARD.Vector3 = {
   create: function(x, y, z) {
-    var vector = new FSS.Array(3);
+    var vector = new SHARD.Array(3);
     this.set(vector, x, y, z);
     return vector;
   },

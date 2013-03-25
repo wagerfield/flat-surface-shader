@@ -2,13 +2,13 @@
  * @class Vertex
  * @author Matthew Wagerfield
  */
-FSS.Vertex = function(x, y, z) {
-  this.position = FSS.Vector3.create(x, y, z);
+SHARD.Vertex = function(x, y, z) {
+  this.position = SHARD.Vector3.create(x, y, z);
 };
 
-FSS.Vertex.prototype = {
+SHARD.Vertex.prototype = {
   setPosition: function(x, y, z) {
-    FSS.Vector3.set(this.position, x, y, z);
+    SHARD.Vector3.set(this.position, x, y, z);
     return this;
   }
 };

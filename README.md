@@ -1,10 +1,10 @@
-# Flat Surface Shader [FSS]
+# SHARD | Flat Surface Shader
 
-Simple, lightweight **Flat Surface Shader [FSS]** written in **JavaScript** for rendering lit **Triangles** to a number of contexts. Currently there is support for **Canvas 2D** and **SVG**. Check out this [demo][demo] to see it in action.
+Simple, lightweight **Flat Surface Shader** written in **JavaScript** for rendering lit **Triangles** to a number of contexts. Currently there is support for **Canvas 2D** and **SVG**. Check out this [demo][demo] to see it in action.
 
 ## Understanding Lighting
 
-Simply put, **FSS** uses the [Lambertian Reflectance][lambert] model to calculate the color of a **Triangle** based on an array of **Light** sources within a **Scene**.
+Simply put, **SHARD** uses the [Lambertian Reflectance][lambert] model to calculate the color of a **Triangle** based on an array of **Light** sources within a **Scene**.
 
 #### Light
 
@@ -32,7 +32,7 @@ A **Scene** sits at the very top of the stack. It simply manages an array of **M
 
 #### Renderer
 
-The **Renderer** takes all the information in a **Scene** and renders it to a context. Currently **FSS** supports **Canvas 2D** & **SVG**, but a **WebGL** renderer will arrive shortly.
+The **Renderer** takes all the information in a **Scene** and renders it to a context. Currently **SHARD** supports **Canvas 2D** & **SVG**, but a **WebGL** renderer will arrive shortly.
 
 #### Calculation
 
@@ -46,28 +46,28 @@ For every **Triangle** in a **Scene** the following calculation is performed:
 
 ## Example
 
-**NOTE:** All **Flat Surface Shader** Objects exist within the **FSS** namespace.
+**NOTE:** All objects exist within the **SHARD** namespace.
 
 ```javascript
 // 1) Create a Renderer for the context you would like to render to.
 //    Currently there is a CanvasRenderer and an SVGRenderer.
-var renderer = new FSS.CanvasRenderer();
+var renderer = new SHARD.CanvasRenderer();
 
 // 2) Add the Renderer's element to the DOM:
 var container = document.getElementById('container');
 container.appendChild(renderer.element);
 
 // 3) Create a Scene:
-var scene = new FSS.Scene();
+var scene = new SHARD.Scene();
 
 // 4) Create some Geometry & a Material, pass them to a Mesh constructor, and add the Mesh to the Scene:
-var geometry = new FSS.Plane(200, 100, 4, 2);
-var material = new FSS.Material('#444444', '#FFFFFF');
-var mesh = new FSS.Mesh(geometry, material);
+var geometry = new SHARD.Plane(200, 100, 4, 2);
+var material = new SHARD.Material('#444444', '#FFFFFF');
+var mesh = new SHARD.Mesh(geometry, material);
 scene.add(mesh);
 
 // 5) Create and add a Light to the Scene:
-var light = new FSS.Light('#FF0000', '#0000FF');
+var light = new SHARD.Light('#FF0000', '#0000FF');
 scene.add(light);
 
 // 6) Finally, render the Scene:
@@ -92,7 +92,7 @@ Matthew Wagerfield: [@mwagerfield][twitter]
 
 Licensed under [MIT][mit]. Enjoy.
 
-[demo]: http://wagerfield.github.com/flat-surface-shader/
+[demo]: http://wagerfield.github.com/shard/
 [lambert]: http://en.wikipedia.org/wiki/Lambertian_reflectance
 [diffuse]: http://en.wikipedia.org/wiki/Diffuse_reflection
 [unit]: http://en.wikipedia.org/wiki/Unit_vector
