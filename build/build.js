@@ -20,7 +20,9 @@ var FILE_ENCODING = 'utf-8',
         'Plane.js',
         'Material.js',
         'Mesh.js',
-        'Scene.js'
+        'Scene.js',
+        'Renderer.js',
+        'CanvasRenderer.js'
     ];
 
 // Returns a path string from a list of path segments
