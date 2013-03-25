@@ -11,6 +11,10 @@ FSS.Triangle = function(a, b, c) {
   this.centroid = FSS.Vector3.create();
   this.normal = FSS.Vector3.create();
   this.color = new FSS.Color();
+  this.polygon = document.createElementNS(FSS.SVGNS, 'polygon');
+  this.polygon.setAttributeNS(null, 'stroke-linejoin', 'round');
+  this.polygon.setAttributeNS(null, 'stroke-miterlimit', '1');
+  this.polygon.setAttributeNS(null, 'stroke-width', '1');
   this.computeCentroid();
   this.computeNormal();
 };
