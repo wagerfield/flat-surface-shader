@@ -645,6 +645,8 @@ SHARD.CanvasRenderer.prototype.render = function(scene) {
 SHARD.SVGRenderer = function() {
   SHARD.Renderer.call(this);
   this.element = document.createElementNS(SHARD.SVGNS, 'svg');
+  this.element.setAttribute('xmlns', SHARD.SVGNS);
+  this.element.setAttribute('version', '1.1');
   this.element.style.display = 'block';
   this.setSize(300, 150);
 };
