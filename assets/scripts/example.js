@@ -49,7 +49,7 @@
   var SVG = 'svg';
   var CANVAS = 'canvas';
   var RENDER = {
-    renderer: SVG
+    renderer: CANVAS
   };
 
   //------------------------------
