@@ -1,6 +1,6 @@
 # Flat Surface Shader [FSS]
 
-Simple, lightweight **Flat Surface Shader [FSS]** written in **JavaScript** for rendering lit **Triangles** to a **Canvas** element. Check out this [demo][demo] to see it in action.
+Simple, lightweight **Flat Surface Shader [FSS]** written in **JavaScript** for rendering lit **Triangles** to a number of contexts. Currently there is support for **Canvas 2D** and **SVG**. Check out this [demo][demo] to see it in action.
 
 ## Understanding Lighting
 
@@ -28,7 +28,11 @@ A **Mesh** is constructed from a **Geometry** object and a **Material** object. 
 
 #### Scene
 
-A **Scene** sits at the very top of the stack. It manages an array of **Mesh** & **Light** objects and renders the information to a **canvas**.
+A **Scene** sits at the very top of the stack. It simply manages an array of **Mesh** & **Light** objects.
+
+#### Renderer
+
+The **Renderer** takes all the information in a **Scene** and renders it to a context. Currently **FSS** supports **Canvas 2D** & **SVG**, but a **WebGL** renderer will arrive shortly.
 
 #### Calculation
 
@@ -56,7 +60,7 @@ container.appendChild(renderer.element);
 // 3) Create a Scene:
 var scene = new FSS.Scene();
 
-// 4) Create some Geometry & a Material, pass them to a Mesh constructor, and add the Mesh to a Scene:
+// 4) Create some Geometry & a Material, pass them to a Mesh constructor, and add the Mesh to the Scene:
 var geometry = new FSS.Plane(200, 100, 4, 2);
 var material = new FSS.Material('#444444', '#FFFFFF');
 var mesh = new FSS.Mesh(geometry, material);
