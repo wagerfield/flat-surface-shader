@@ -660,7 +660,9 @@ SHARD.SVGRenderer.prototype.setSize = function(width, height) {
 
 SHARD.SVGRenderer.prototype.clear = function() {
   SHARD.Renderer.prototype.clear.call(this);
-  this.element.innerHTML = '';
+  for (var i = this.element.childNodes.length - 1; i >= 0; i--) {
+    this.element.removeChild(this.element.childNodes[i]);
+  }
   return this;
 };
 
