@@ -8,4 +8,21 @@ FSS = {
   DOUBLE : 2
 };
 
+/**
+ * @class Array
+ * @author Matthew Wagerfield
+ */
 FSS.Array = typeof Float32Array === 'function' ? Float32Array : Array;
+
+/**
+ * Request Animation Frame Polyfill.
+ * @author Matthew Wagerfield
+ */
+window.requestAnimationFrame = (function(){
+  return window.requestAnimationFrame       ||
+         window.webkitRequestAnimationFrame ||
+         window.mozRequestAnimationFrame    ||
+         function(callback) {
+           window.setTimeout(callback, 1000/60);
+         };
+})();

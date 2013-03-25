@@ -29,17 +29,5 @@ FSS.Triangle.prototype = {
     FSS.Vector3.crossVectors(this.normal, this.u, this.v);
     FSS.Vector3.normalise(this.normal);
     return this;
-  },
-  render: function(context, color) {
-    context.beginPath();
-    context.moveTo(this.a.position[0], this.a.position[1]);
-    context.lineTo(this.b.position[0], this.b.position[1]);
-    context.lineTo(this.c.position[0], this.c.position[1]);
-    context.closePath();
-    context.strokeStyle = color;
-    context.fillStyle = color;
-    context.stroke();
-    context.fill();
-    return this;
   }
 };

@@ -11,7 +11,7 @@ FSS.Geometry = function() {
 FSS.Geometry.prototype = {
   update: function() {
     if (this.dirty) {
-      var t, triangle;
+      var t,triangle;
       for (t = this.triangles.length - 1; t >= 0; t--) {
         triangle = this.triangles[t];
         triangle.computeCentroid();
