@@ -36,10 +36,28 @@
 FSS = {
   FRONT  : 0,
   BACK   : 1,
-  DOUBLE : 2
+  DOUBLE : 2,
+  SVGNS  : 'http://www.w3.org/2000/svg'
 };
 
+/**
+ * @class Array
+ * @author Matthew Wagerfield
+ */
 FSS.Array = typeof Float32Array === 'function' ? Float32Array : Array;
+
+/**
+ * Request Animation Frame Polyfill.
+ * @author Matthew Wagerfield
+ */
+window.requestAnimationFrame = (function(){
+  return window.requestAnimationFrame       ||
+         window.webkitRequestAnimationFrame ||
+         window.mozRequestAnimationFrame    ||
+         function(callback) {
+           window.setTimeout(callback, 1000/60);
+         };
+})();
 
 /**
  * @object Math Augmentation
@@ -281,22 +299,32 @@ FSS.Color.prototype = {
 };
 
 /**
- * @class Light
+ * @class Object
  * @author Matthew Wagerfield
  */
-FSS.Light = function(ambient, diffuse) {
-  this.ambient = new FSS.Color(ambient || '#FFFFFF');
-  this.diffuse = new FSS.Color(diffuse || '#FFFFFF');
+FSS.Object = function() {
   this.position = FSS.Vector3.create();
-  this.ray = FSS.Vector3.create();
 };
 
-FSS.Light.prototype = {
+FSS.Object.prototype = {
   setPosition: function(x, y, z) {
     FSS.Vector3.set(this.position, x, y, z);
     return this;
   }
 };
+
+/**
+ * @class Light
+ * @author Matthew Wagerfield
+ */
+FSS.Light = function(ambient, diffuse) {
+  FSS.Object.call(this);
+  this.ambient = new FSS.Color(ambient || '#FFFFFF');
+  this.diffuse = new FSS.Color(diffuse || '#FFFFFF');
+  this.ray = FSS.Vector3.create();
+};
+
+FSS.Light.prototype = Object.create(FSS.Object.prototype);
 
 /**
  * @class Vertex
@@ -344,18 +372,6 @@ FSS.Triangle.prototype = {
     FSS.Vector3.crossVectors(this.normal, this.u, this.v);
     FSS.Vector3.normalise(this.normal);
     return this;
-  },
-  render: function(context, color) {
-    context.beginPath();
-    context.moveTo(this.a.position[0], this.a.position[1]);
-    context.lineTo(this.b.position[0], this.b.position[1]);
-    context.lineTo(this.c.position[0], this.c.position[1]);
-    context.closePath();
-    context.strokeStyle = color;
-    context.fillStyle = color;
-    context.stroke();
-    context.fill();
-    return this;
   }
 };
 
@@ -372,7 +388,7 @@ FSS.Geometry = function() {
 FSS.Geometry.prototype = {
   update: function() {
     if (this.dirty) {
-      var t, triangle;
+      var t,triangle;
       for (t = this.triangles.length - 1; t >= 0; t--) {
         triangle = this.triangles[t];
         triangle.computeCentroid();
@@ -444,133 +460,227 @@ FSS.Material = function(ambient, diffuse) {
  * @author Matthew Wagerfield
  */
 FSS.Mesh = function(geometry, material) {
+  FSS.Object.call(this);
   this.geometry = geometry || new FSS.Geometry();
   this.material = material || new FSS.Material();
   this.side = FSS.FRONT;
   this.visible = true;
 };
 
-FSS.Mesh.prototype = {
-  render: function(context, lights) {
-    var t, triangle, l, light, color, illuminance;
+FSS.Mesh.prototype = Object.create(FSS.Object.prototype);
 
-    // Update Geometry
-    this.geometry.update();
+FSS.Mesh.prototype.update = function(lights) {
+  var t,triangle, l,light, illuminance;
 
-    // Configure Context
-    context.lineJoin = 'round';
-    context.lineWidth = 1;
+  // Update Geometry
+  this.geometry.update();
 
-    // Iterate through Triangles
-    for (t = this.geometry.triangles.length - 1; t >= 0; t--) {
-      triangle = this.geometry.triangles[t];
+  // Iterate through Triangles
+  for (t = this.geometry.triangles.length - 1; t >= 0; t--) {
+    triangle = this.geometry.triangles[t];
 
-      // Reset Triangle Color
-      FSS.Vector3.set(triangle.color.rgb);
+    // Reset Triangle Color
+    FSS.Vector3.set(triangle.color.rgb);
 
-      // Iterate through Lights
-      for (l = lights.length - 1; l >= 0; l--) {
-        light = lights[l];
+    // Iterate through Lights
+    for (l = lights.length - 1; l >= 0; l--) {
+      light = lights[l];
 
-        // Calculate Illuminance
-        FSS.Vector3.subtractVectors(light.ray, light.position, triangle.centroid);
-        FSS.Vector3.normalise(light.ray);
-        illuminance = FSS.Vector3.dot(triangle.normal, light.ray);
-        if (this.side === FSS.FRONT) {
-          illuminance = Math.max(illuminance, 0);
-        } else if (this.side === FSS.BACK) {
-          illuminance = Math.abs(Math.min(illuminance, 0));
-        } else if (this.side === FSS.DOUBLE) {
-          illuminance = Math.max(Math.abs(illuminance), 0);
-        }
-
-        // Calculate Ambient Light
-        FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.ambient.rgb, light.ambient.rgb);
-        FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
-
-        // Calculate Diffuse Light
-        FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.diffuse.rgb, light.diffuse.rgb);
-        FSS.Vector3.multiplyScalar(this.material.slave.rgb, illuminance);
-        FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
+      // Calculate Illuminance
+      FSS.Vector3.subtractVectors(light.ray, light.position, triangle.centroid);
+      FSS.Vector3.normalise(light.ray);
+      illuminance = FSS.Vector3.dot(triangle.normal, light.ray);
+      if (this.side === FSS.FRONT) {
+        illuminance = Math.max(illuminance, 0);
+      } else if (this.side === FSS.BACK) {
+        illuminance = Math.abs(Math.min(illuminance, 0));
+      } else if (this.side === FSS.DOUBLE) {
+        illuminance = Math.max(Math.abs(illuminance), 0);
       }
 
-      // Clamp & Format Color
-      FSS.Vector3.clamp(triangle.color.rgb, 0, 1);
-      color = triangle.color.format();
+      // Calculate Ambient Light
+      FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.ambient.rgb, light.ambient.rgb);
+      FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
 
-      // Draw Triangle
-      triangle.render(context, color);
+      // Calculate Diffuse Light
+      FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.diffuse.rgb, light.diffuse.rgb);
+      FSS.Vector3.multiplyScalar(this.material.slave.rgb, illuminance);
+      FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
     }
-    return this;
+
+    // Clamp & Format Color
+    FSS.Vector3.clamp(triangle.color.rgb, 0, 1);
   }
+  return this;
 };
 
 /**
  * @class Scene
  * @author Matthew Wagerfield
  */
-FSS.Scene = function(options) {
-  options = options || {};
-  this.canvas = options.canvas || document.createElement('canvas');
-  this.canvas.style.display = 'block';
-  this.context = this.canvas.getContext('2d');
+FSS.Scene = function() {
   this.meshes = [];
   this.lights = [];
+};
+
+FSS.Scene.prototype = {
+  add: function(object) {
+    if (object instanceof FSS.Mesh && !~this.meshes.indexOf(object)) {
+      this.meshes.push(object);
+    } else if (object instanceof FSS.Light && !~this.lights.indexOf(object)) {
+      this.lights.push(object);
+    }
+    return this;
+  },
+  remove: function(object) {
+    if (object instanceof FSS.Mesh && ~this.meshes.indexOf(object)) {
+      this.meshes.splice(this.meshes.indexOf(object), 1);
+    } else if (object instanceof FSS.Light && ~this.lights.indexOf(object)) {
+      this.lights.splice(this.lights.indexOf(object), 1);
+    }
+    return this;
+  }
+};
+
+/**
+ * @class Renderer
+ * @author Matthew Wagerfield
+ */
+FSS.Renderer = function() {
   this.width = 0;
   this.height = 0;
   this.halfWidth = 0;
   this.halfHeight = 0;
-  this.setSize(canvas.width, canvas.height);
 };
 
-FSS.Scene.prototype = {
-  addMesh: function(mesh) {
-    if (mesh instanceof FSS.Mesh && !~this.meshes.indexOf(mesh)) {
-      this.meshes.push(mesh);
-    }
-    return this;
-  },
-  removeMesh: function(mesh) {
-    if (mesh instanceof FSS.Mesh && ~this.meshes.indexOf(mesh)) {
-      this.meshes.splice(this.meshes.indexOf(mesh), 1);
-    }
-    return this;
-  },
-  addLight: function(light) {
-    if (light instanceof FSS.Light && !~this.lights.indexOf(light)) {
-      this.lights.push(light);
-    }
-    return this;
-  },
-  removeLight: function(light) {
-    if (light instanceof FSS.Light && ~this.lights.indexOf(light)) {
-      this.lights.splice(this.lights.indexOf(light), 1);
-    }
-    return this;
-  },
+FSS.Renderer.prototype = {
   setSize: function(width, height) {
-    if (this.width !== width || this.height !== height) {
-      this.width = this.canvas.width = width;
-      this.height = this.canvas.height = height;
-      this.halfWidth = this.width * 0.5;
-      this.halfHeight = this.height * 0.5;
-      this.context.setTransform(1, 0, 0, -1, this.halfWidth, this.halfHeight);
-    }
+    if (this.width === width && this.height === height) return;
+    this.width = width;
+    this.height = height;
+    this.halfWidth = this.width * 0.5;
+    this.halfHeight = this.height * 0.5;
     return this;
   },
   clear: function() {
-    this.context.clearRect(-this.halfWidth, -this.halfHeight, this.width, this.height);
     return this;
   },
-  render: function() {
+  render: function(scene) {
     this.clear();
-    var m, mesh;
-    for (m = this.meshes.length - 1; m >= 0; m--) {
-      mesh = this.meshes[m];
-      if (mesh.visible) {
-        mesh.render(this.context, this.lights);
-      }
-    }
     return this;
   }
+};
+
+/**
+ * @class Canvas Renderer
+ * @author Matthew Wagerfield
+ */
+FSS.CanvasRenderer = function() {
+  FSS.Renderer.call(this);
+  this.element = document.createElement('canvas');
+  this.element.style.display = 'block';
+  this.context = this.element.getContext('2d');
+  this.setSize(this.element.width, this.element.height);
+};
+
+FSS.CanvasRenderer.prototype = Object.create(FSS.Renderer.prototype);
+
+FSS.CanvasRenderer.prototype.setSize = function(width, height) {
+  FSS.Renderer.prototype.setSize.call(this, width, height);
+  this.element.width = width;
+  this.element.height = height;
+  this.context.setTransform(1, 0, 0, -1, this.halfWidth, this.halfHeight);
+  return this;
+};
+
+FSS.CanvasRenderer.prototype.clear = function() {
+  FSS.Renderer.prototype.clear.call(this);
+  this.context.clearRect(-this.halfWidth, -this.halfHeight, this.width, this.height);
+  return this;
+};
+
+FSS.CanvasRenderer.prototype.render = function(scene) {
+  FSS.Renderer.prototype.render.call(this, scene);
+  var m,mesh, t,triangle, color;
+
+  // Configure Context
+  this.context.lineJoin = 'round';
+  this.context.lineWidth = 1;
+
+  // Update Meshes
+  for (m = scene.meshes.length - 1; m >= 0; m--) {
+    mesh = scene.meshes[m];
+    if (mesh.visible) {
+      mesh.update(scene.lights);
+
+      // Render Triangles
+      for (t = mesh.geometry.triangles.length - 1; t >= 0; t--) {
+        triangle = mesh.geometry.triangles[t];
+        color = triangle.color.format();
+        this.context.beginPath();
+        this.context.moveTo(triangle.a.position[0], triangle.a.position[1]);
+        this.context.lineTo(triangle.b.position[0], triangle.b.position[1]);
+        this.context.lineTo(triangle.c.position[0], triangle.c.position[1]);
+        this.context.closePath();
+        this.context.strokeStyle = color;
+        this.context.fillStyle = color;
+        this.context.stroke();
+        this.context.fill();
+      }
+    }
+  }
+  return this;
+};
+
+/**
+ * @class SVG Renderer
+ * @author Matthew Wagerfield
+ */
+FSS.SVGRenderer = function() {
+  FSS.Renderer.call(this);
+  this.element = document.createElement('div');
+  this.shape = document.createElementNS(FSS.SVGNS, 'circle');
+  this.shape.setAttributeNS(null, 'fill', 'red');
+  this.shape.setAttributeNS(null, 'cx', 250);
+  this.shape.setAttributeNS(null, 'cy', 250);
+  this.shape.setAttributeNS(null, 'r',  200);
+  this.element.appendChild(this.shape);
+  this.setSize(300, 150);
+};
+
+FSS.SVGRenderer.prototype = Object.create(FSS.Renderer.prototype);
+
+FSS.SVGRenderer.prototype.setSize = function(width, height) {
+  FSS.Renderer.prototype.setSize.call(this, width, height);
+  this.element.style.width = width + 'px';
+  this.element.style.height = height + 'px';
+  return this;
+};
+
+FSS.SVGRenderer.prototype.clear = function() {
+  FSS.Renderer.prototype.clear.call(this);
+  return this;
+};
+
+FSS.SVGRenderer.prototype.render = function(scene) {
+  FSS.Renderer.prototype.render.call(this, scene);
+  var m,mesh, t,triangle, color;
+
+  // Update Meshes
+  for (m = scene.meshes.length - 1; m >= 0; m--) {
+    mesh = scene.meshes[m];
+    if (mesh.visible) {
+      mesh.update(scene.lights);
+
+      // Render Triangles
+      for (t = mesh.geometry.triangles.length - 1; t >= 0; t--) {
+        triangle = mesh.geometry.triangles[t];
+        color = triangle.color.format();
+        // moveTo(triangle.a.position[0], triangle.a.position[1]);
+        // lineTo(triangle.b.position[0], triangle.b.position[1]);
+        // lineTo(triangle.c.position[0], triangle.c.position[1]);
+      }
+    }
+  }
+  return this;
 };

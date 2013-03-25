@@ -13,6 +13,7 @@ var FILE_ENCODING = 'utf-8',
         'Math.js',
         'Vector3.js',
         'Color.js',
+        'Object.js',
         'Light.js',
         'Vertex.js',
         'Triangle.js',
@@ -20,7 +21,10 @@ var FILE_ENCODING = 'utf-8',
         'Plane.js',
         'Material.js',
         'Mesh.js',
-        'Scene.js'
+        'Scene.js',
+        'Renderer.js',
+        'CanvasRenderer.js',
+        'SVGRenderer.js'
     ];
 
 // Returns a path string from a list of path segments
