@@ -35,8 +35,8 @@
     maxDistance: 400,
     autopilot: false,
     draw: true,
-    bounds: FSS.Vector3.create(),
-    step: FSS.Vector3.create(
+    bounds: SHARD.Vector3.create(),
+    step: SHARD.Vector3.create(
       Math.randomInRange(0.2, 1.0),
       Math.randomInRange(0.2, 1.0),
       Math.randomInRange(0.2, 1.0)
@@ -81,8 +81,8 @@
         light = scene.lights[l];
         x = Math.randomInRange(this.width*this.minLightX, this.width*this.maxLightX);
         y = Math.randomInRange(this.height*this.minLightY, this.height*this.maxLightY);
-        FSS.Vector3.set(light.position, x, this.height-y, this.lightZ);
-        FSS.Vector3.subtract(light.position, center);
+        SHARD.Vector3.set(light.position, x, this.height-y, this.lightZ);
+        SHARD.Vector3.subtract(light.position, center);
       }
 
       update();
@@ -110,8 +110,8 @@
   // Global Properties
   //------------------------------
   var now, start = Date.now();
-  var center = FSS.Vector3.create();
-  var attractor = FSS.Vector3.create();
+  var center = SHARD.Vector3.create();
+  var attractor = SHARD.Vector3.create();
   var container = document.getElementById('container');
   var controls = document.getElementById('controls');
   var ui = document.getElementById('ui');
@@ -134,8 +134,8 @@
   }
 
   function createRenderer() {
-    svgRenderer = new FSS.SVGRenderer();
-    canvasRenderer = new FSS.CanvasRenderer();
+    svgRenderer = new SHARD.SVGRenderer();
+    canvasRenderer = new SHARD.CanvasRenderer();
     setRenderer(RENDER.renderer);
   }
 
@@ -156,22 +156,22 @@
   }
 
   function createScene() {
-    scene = new FSS.Scene();
+    scene = new SHARD.Scene();
   }
 
   function createMesh() {
     scene.remove(mesh);
-    geometry = new FSS.Plane(MESH.width * renderer.width, MESH.height * renderer.height, MESH.segments, MESH.slices);
-    material = new FSS.Material(MESH.ambient, MESH.diffuse);
-    mesh = new FSS.Mesh(geometry, material);
+    geometry = new SHARD.Plane(MESH.width * renderer.width, MESH.height * renderer.height, MESH.segments, MESH.slices);
+    material = new SHARD.Material(MESH.ambient, MESH.diffuse);
+    mesh = new SHARD.Mesh(geometry, material);
     scene.add(mesh);
 
     // Augment vertices for animation
     var v, vertex;
     for (v = geometry.vertices.length - 1; v >= 0; v--) {
       vertex = geometry.vertices[v];
-      vertex.anchor = FSS.Vector3.clone(vertex.position);
-      vertex.step = FSS.Vector3.create(
+      vertex.anchor = SHARD.Vector3.clone(vertex.position);
+      vertex.step = SHARD.Vector3.create(
         Math.randomInRange(0.2, 1.0),
         Math.randomInRange(0.2, 1.0),
         Math.randomInRange(0.2, 1.0)
@@ -187,22 +187,22 @@
       scene.remove(light);
     }
     for (l = 0; l < LIGHT.count; l++) {
-      light = new FSS.Light(LIGHT.ambient, LIGHT.diffuse);
+      light = new SHARD.Light(LIGHT.ambient, LIGHT.diffuse);
       light.ambientHex = light.ambient.format();
       light.diffuseHex = light.diffuse.format();
       scene.add(light);
 
       // Augment light for animation
       light.mass = Math.randomInRange(0.5, 1);
-      light.velocity = FSS.Vector3.create();
-      light.acceleration = FSS.Vector3.create();
-      light.force = FSS.Vector3.create();
+      light.velocity = SHARD.Vector3.create();
+      light.acceleration = SHARD.Vector3.create();
+      light.force = SHARD.Vector3.create();
     }
   }
 
   function resize(width, height) {
     renderer.setSize(width, height);
-    FSS.Vector3.set(center, renderer.halfWidth, renderer.halfHeight);
+    SHARD.Vector3.set(center, renderer.halfWidth, renderer.halfHeight);
     createMesh();
   }
 
@@ -217,17 +217,17 @@
     var ox, oy, oz, l, light, v, vertex, offset = MESH.depth/2;
 
     // Update Bounds
-    FSS.Vector3.copy(LIGHT.bounds, center);
-    FSS.Vector3.multiplyScalar(LIGHT.bounds, LIGHT.xyScalar);
+    SHARD.Vector3.copy(LIGHT.bounds, center);
+    SHARD.Vector3.multiplyScalar(LIGHT.bounds, LIGHT.xyScalar);
 
     // Update Attractor
-    FSS.Vector3.setZ(attractor, LIGHT.zOffset);
+    SHARD.Vector3.setZ(attractor, LIGHT.zOffset);
 
     // Overwrite the Attractor position
     if (LIGHT.autopilot) {
       ox = Math.sin(LIGHT.step[0] * now * LIGHT.speed);
       oy = Math.cos(LIGHT.step[1] * now * LIGHT.speed);
-      FSS.Vector3.set(attractor,
+      SHARD.Vector3.set(attractor,
         LIGHT.bounds[0]*ox,
         LIGHT.bounds[1]*oy,
         LIGHT.zOffset);
@@ -238,22 +238,22 @@
       light = scene.lights[l];
 
       // Reset the z position of the light
-      FSS.Vector3.setZ(light.position, LIGHT.zOffset);
+      SHARD.Vector3.setZ(light.position, LIGHT.zOffset);
 
       // Calculate the force Luke!
-      var D = Math.clamp(FSS.Vector3.distanceSquared(light.position, attractor), LIGHT.minDistance, LIGHT.maxDistance);
+      var D = Math.clamp(SHARD.Vector3.distanceSquared(light.position, attractor), LIGHT.minDistance, LIGHT.maxDistance);
       var F = LIGHT.gravity * light.mass / D;
-      FSS.Vector3.subtractVectors(light.force, attractor, light.position);
-      FSS.Vector3.normalise(light.force);
-      FSS.Vector3.multiplyScalar(light.force, F);
+      SHARD.Vector3.subtractVectors(light.force, attractor, light.position);
+      SHARD.Vector3.normalise(light.force);
+      SHARD.Vector3.multiplyScalar(light.force, F);
 
       // Update the light position
-      FSS.Vector3.set(light.acceleration);
-      FSS.Vector3.add(light.acceleration, light.force);
-      FSS.Vector3.add(light.velocity, light.acceleration);
-      FSS.Vector3.multiplyScalar(light.velocity, LIGHT.dampening);
-      FSS.Vector3.limit(light.velocity, LIGHT.minLimit, LIGHT.maxLimit);
-      FSS.Vector3.add(light.position, light.velocity);
+      SHARD.Vector3.set(light.acceleration);
+      SHARD.Vector3.add(light.acceleration, light.force);
+      SHARD.Vector3.add(light.velocity, light.acceleration);
+      SHARD.Vector3.multiplyScalar(light.velocity, LIGHT.dampening);
+      SHARD.Vector3.limit(light.velocity, LIGHT.minLimit, LIGHT.maxLimit);
+      SHARD.Vector3.add(light.position, light.velocity);
     }
 
     // Animate Vertices
@@ -262,11 +262,11 @@
       ox = Math.sin(vertex.time + vertex.step[0] * now * MESH.speed);
       oy = Math.cos(vertex.time + vertex.step[1] * now * MESH.speed);
       oz = Math.sin(vertex.time + vertex.step[2] * now * MESH.speed);
-      FSS.Vector3.set(vertex.position,
+      SHARD.Vector3.set(vertex.position,
         MESH.xRange*geometry.segmentWidth*ox,
         MESH.yRange*geometry.sliceHeight*oy,
         MESH.zRange*offset*oz - offset);
-      FSS.Vector3.add(vertex.position, vertex.anchor);
+      SHARD.Vector3.add(vertex.position, vertex.anchor);
     }
 
     // Set the Geometry to dirty
@@ -414,15 +414,15 @@
   // Callbacks
   //------------------------------
   function onMouseClick(event) {
-    FSS.Vector3.set(attractor, event.x, renderer.height - event.y);
-    FSS.Vector3.subtract(attractor, center);
+    SHARD.Vector3.set(attractor, event.x, renderer.height - event.y);
+    SHARD.Vector3.subtract(attractor, center);
     LIGHT.autopilot = !LIGHT.autopilot;
     autopilotController.updateDisplay();
   }
 
   function onMouseMove(event) {
-    FSS.Vector3.set(attractor, event.x, renderer.height - event.y);
-    FSS.Vector3.subtract(attractor, center);
+    SHARD.Vector3.set(attractor, event.x, renderer.height - event.y);
+    SHARD.Vector3.subtract(attractor, center);
   }
 
   function onWindowResize(event) {
