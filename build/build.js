@@ -9,7 +9,7 @@ var FILE_ENCODING = 'utf-8',
     SOURCE_DIR    = '../source',
     OUTPUT_DIR    = '../deploy',
     SCRIPTS       = [
-        'SHARD.js',
+        'Core.js',
         'Math.js',
         'Vector3.js',
         'Color.js',
