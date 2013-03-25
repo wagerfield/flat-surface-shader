@@ -59,7 +59,7 @@
           depth = MESH.depth,
           zOffset = LIGHT.zOffset,
           autopilot = LIGHT.autopilot,
-          scalar = this.width / scene.width;
+          scalar = this.width / renderer.width;
 
       LIGHT.autopilot = true;
       LIGHT.draw = this.drawLights;
@@ -72,7 +72,7 @@
         light = scene.lights[l];
         x = Math.randomInRange(this.width*this.minLightX, this.width*this.maxLightX);
         y = Math.randomInRange(this.height*this.minLightY, this.height*this.maxLightY);
-        FSS.Vector3.set(light.position, x, this.height - y, this.lightZ);
+        FSS.Vector3.set(light.position, x, this.height-y, this.lightZ);
         FSS.Vector3.subtract(light.position, center);
       }
 
@@ -105,15 +105,15 @@
   var attractor = FSS.Vector3.create();
   var container = document.getElementById('container');
   var controls = document.getElementById('controls');
-  var canvas = document.getElementById('canvas');
   var ui = document.getElementById('ui');
-  var scene, mesh, geometry, material;
+  var renderer, scene, mesh, geometry, material;
   var gui, autopilotController;
 
   //------------------------------
   // Methods
   //------------------------------
   function initialise() {
+    createRenderer();
     createScene();
     createMesh();
     createLights();
@@ -123,17 +123,22 @@
     animate();
   }
 
+  function createRenderer() {
+    renderer = new FSS.CanvasRenderer();
+    renderer.setSize(container.offsetWidth, container.offsetHeight);
+    container.appendChild(renderer.element);
+  }
+
   function createScene() {
-    scene = new FSS.Scene({canvas:canvas});
-    scene.setSize(container.offsetWidth, container.offsetHeight);
+    scene = new FSS.Scene();
   }
 
   function createMesh() {
-    scene.removeMesh(mesh);
-    geometry = new FSS.Plane(MESH.width * scene.width, MESH.height * scene.height, MESH.segments, MESH.slices);
+    scene.remove(mesh);
+    geometry = new FSS.Plane(MESH.width * renderer.width, MESH.height * renderer.height, MESH.segments, MESH.slices);
     material = new FSS.Material(MESH.ambient, MESH.diffuse);
     mesh = new FSS.Mesh(geometry, material);
-    scene.addMesh(mesh);
+    scene.add(mesh);
 
     // Augment vertices for animation
     var v, vertex;
@@ -153,13 +158,13 @@
     var l, light;
     for (l = scene.lights.length - 1; l >= 0; l--) {
       light = scene.lights[l];
-      scene.removeLight(light);
+      scene.remove(light);
     }
     for (l = 0; l < LIGHT.count; l++) {
       light = new FSS.Light(LIGHT.ambient, LIGHT.diffuse);
       light.ambientHex = light.ambient.format();
       light.diffuseHex = light.diffuse.format();
-      scene.addLight(light);
+      scene.add(light);
 
       // Augment light for animation
       light.mass = Math.randomInRange(0.5, 1);
@@ -170,8 +175,8 @@
   }
 
   function resize(width, height) {
-    scene.setSize(width, height);
-    FSS.Vector3.set(center, scene.halfWidth, scene.halfHeight);
+    renderer.setSize(width, height);
+    FSS.Vector3.set(center, renderer.halfWidth, renderer.halfHeight);
     createMesh();
   }
 
@@ -243,24 +248,24 @@
   }
 
   function render() {
-    scene.render();
+    renderer.render(scene);
 
     // Draw Lights
     if (LIGHT.draw) {
       var l, lx, ly, light;
-      scene.context.lineWidth = 0.5;
+      renderer.context.lineWidth = 0.5;
       for (l = scene.lights.length - 1; l >= 0; l--) {
         light = scene.lights[l];
         lx = light.position[0];
         ly = light.position[1];
-        scene.context.beginPath();
-        scene.context.arc(lx, ly, 10, 0, Math.PIM2);
-        scene.context.strokeStyle = light.ambientHex;
-        scene.context.stroke();
-        scene.context.beginPath();
-        scene.context.arc(lx, ly, 4, 0, Math.PIM2);
-        scene.context.fillStyle = light.diffuseHex;
-        scene.context.fill();
+        renderer.context.beginPath();
+        renderer.context.arc(lx, ly, 10, 0, Math.PIM2);
+        renderer.context.strokeStyle = light.ambientHex;
+        renderer.context.stroke();
+        renderer.context.beginPath();
+        renderer.context.arc(lx, ly, 4, 0, Math.PIM2);
+        renderer.context.fillStyle = light.diffuseHex;
+        renderer.context.fill();
       }
     }
   }
@@ -311,11 +316,11 @@
     });
     controller = meshFolder.add(MESH, 'width', 0.05, 2);
     controller.onChange(function(value) {
-      if (geometry.width !== value * scene.width) { createMesh(); }
+      if (geometry.width !== value * renderer.width) { createMesh(); }
     });
     controller = meshFolder.add(MESH, 'height', 0.05, 2);
     controller.onChange(function(value) {
-      if (geometry.height !== value * scene.height) { createMesh(); }
+      if (geometry.height !== value * renderer.height) { createMesh(); }
     });
     controller = meshFolder.add(MESH, 'depth', 0, 50);
     controller = meshFolder.add(MESH, 'segments', 1, 20);
@@ -375,14 +380,14 @@
   // Callbacks
   //------------------------------
   function onMouseClick(event) {
-    FSS.Vector3.set(attractor, event.x, scene.height - event.y);
+    FSS.Vector3.set(attractor, event.x, renderer.height - event.y);
     FSS.Vector3.subtract(attractor, center);
     LIGHT.autopilot = !LIGHT.autopilot;
     autopilotController.updateDisplay();
   }
 
   function onMouseMove(event) {
-    FSS.Vector3.set(attractor, event.x, scene.height - event.y);
+    FSS.Vector3.set(attractor, event.x, renderer.height - event.y);
     FSS.Vector3.subtract(attractor, center);
   }
 
