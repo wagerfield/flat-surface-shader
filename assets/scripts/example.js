@@ -164,6 +164,7 @@
     geometry = new SHARD.Plane(MESH.width * renderer.width, MESH.height * renderer.height, MESH.segments, MESH.slices);
     material = new SHARD.Material(MESH.ambient, MESH.diffuse);
     mesh = new SHARD.Mesh(geometry, material);
+    renderer.clear();
     scene.add(mesh);
 
     // Augment vertices for animation
