@@ -30,6 +30,9 @@ FSS.CanvasRenderer.prototype.render = function(scene) {
   FSS.Renderer.prototype.render.call(this, scene);
   var m,mesh, t,triangle, color;
 
+  // Clear Context
+  this.clear();
+
   // Configure Context
   this.context.lineJoin = 'round';
   this.context.lineWidth = 1;

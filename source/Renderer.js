@@ -22,7 +22,6 @@ FSS.Renderer.prototype = {
     return this;
   },
   render: function(scene) {
-    this.clear();
     return this;
   }
 };
