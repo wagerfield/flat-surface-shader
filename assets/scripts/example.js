@@ -49,7 +49,7 @@
   var SVG = 'svg';
   var CANVAS = 'canvas';
   var RENDER = {
-    renderer: CANVAS
+    renderer: SVG
   };
 
   //------------------------------
@@ -88,7 +88,16 @@
       update();
       render();
 
-      window.open(canvasRenderer.element.toDataURL(), '_blank');
+      switch(RENDER.renderer) {
+        case CANVAS:
+          window.open(canvasRenderer.element.toDataURL(), '_blank');
+          break;
+        case SVG:
+          var data = encodeURIComponent(output.innerHTML);
+          var url = "data:image/svg+xml," + data;
+          window.open(url, '_blank');
+          break;
+      }
 
       LIGHT.draw = true;
       LIGHT.autopilot = autopilot;
@@ -114,6 +123,7 @@
   var attractor = SHARD.Vector3.create();
   var container = document.getElementById('container');
   var controls = document.getElementById('controls');
+  var output = document.getElementById('output');
   var ui = document.getElementById('ui');
   var renderer, scene, mesh, geometry, material;
   var canvasRenderer, svgRenderer;
@@ -141,7 +151,7 @@
 
   function setRenderer(index) {
     if (renderer) {
-      container.removeChild(renderer.element);
+      output.removeChild(renderer.element);
     }
     switch(index) {
       case CANVAS:
@@ -152,7 +162,7 @@
         break;
     }
     renderer.setSize(container.offsetWidth, container.offsetHeight);
-    container.insertBefore(renderer.element, container.firstChild);
+    output.appendChild(renderer.element);
   }
 
   function createScene() {
@@ -161,10 +171,10 @@
 
   function createMesh() {
     scene.remove(mesh);
+    renderer.clear();
     geometry = new SHARD.Plane(MESH.width * renderer.width, MESH.height * renderer.height, MESH.segments, MESH.slices);
     material = new SHARD.Material(MESH.ambient, MESH.diffuse);
     mesh = new SHARD.Mesh(geometry, material);
-    renderer.clear();
     scene.add(mesh);
 
     // Augment vertices for animation
@@ -187,6 +197,7 @@
       light = scene.lights[l];
       scene.remove(light);
     }
+    renderer.clear();
     for (l = 0; l < LIGHT.count; l++) {
       light = new SHARD.Light(LIGHT.ambient, LIGHT.diffuse);
       light.ambientHex = light.ambient.format();
@@ -198,6 +209,18 @@
       light.velocity = SHARD.Vector3.create();
       light.acceleration = SHARD.Vector3.create();
       light.force = SHARD.Vector3.create();
+
+      // Ring SVG Circle
+      light.ring = document.createElementNS(SHARD.SVGNS, 'circle');
+      light.ring.setAttributeNS(null, 'stroke', light.ambientHex);
+      light.ring.setAttributeNS(null, 'stroke-width', '0.5');
+      light.ring.setAttributeNS(null, 'fill', 'none');
+      light.ring.setAttributeNS(null, 'r', '10');
+
+      // Core SVG Circle
+      light.core = document.createElementNS(SHARD.SVGNS, 'circle');
+      light.core.setAttributeNS(null, 'fill', light.diffuseHex);
+      light.core.setAttributeNS(null, 'r', '4');
     }
   }
 
@@ -278,21 +301,35 @@
     renderer.render(scene);
 
     // Draw Lights
-    if (LIGHT.draw && RENDER.renderer === CANVAS) {
+    if (LIGHT.draw) {
       var l, lx, ly, light;
-      renderer.context.lineWidth = 0.5;
       for (l = scene.lights.length - 1; l >= 0; l--) {
         light = scene.lights[l];
         lx = light.position[0];
         ly = light.position[1];
-        renderer.context.beginPath();
-        renderer.context.arc(lx, ly, 10, 0, Math.PIM2);
-        renderer.context.strokeStyle = light.ambientHex;
-        renderer.context.stroke();
-        renderer.context.beginPath();
-        renderer.context.arc(lx, ly, 4, 0, Math.PIM2);
-        renderer.context.fillStyle = light.diffuseHex;
-        renderer.context.fill();
+        switch(RENDER.renderer) {
+          case CANVAS:
+            renderer.context.lineWidth = 0.5;
+            renderer.context.beginPath();
+            renderer.context.arc(lx, ly, 10, 0, Math.PIM2);
+            renderer.context.strokeStyle = light.ambientHex;
+            renderer.context.stroke();
+            renderer.context.beginPath();
+            renderer.context.arc(lx, ly, 4, 0, Math.PIM2);
+            renderer.context.fillStyle = light.diffuseHex;
+            renderer.context.fill();
+            break;
+          case SVG:
+            lx += renderer.halfWidth;
+            ly = renderer.halfHeight - ly;
+            light.core.setAttributeNS(null, 'cx', lx);
+            light.core.setAttributeNS(null, 'cy', ly);
+            renderer.element.appendChild(light.core);
+            light.ring.setAttributeNS(null, 'cx', lx);
+            light.ring.setAttributeNS(null, 'cy', ly);
+            renderer.element.appendChild(light.ring);
+            break;
+        }
       }
     }
   }
