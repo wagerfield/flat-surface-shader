@@ -14,6 +14,8 @@ FSS.CanvasRenderer.prototype = Object.create(FSS.Renderer.prototype);
 
 FSS.CanvasRenderer.prototype.setSize = function(width, height) {
   FSS.Renderer.prototype.setSize.call(this, width, height);
+  this.element.width = width;
+  this.element.height = height;
   this.context.setTransform(1, 0, 0, -1, this.halfWidth, this.halfHeight);
   return this;
 };

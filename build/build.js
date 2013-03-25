@@ -23,7 +23,8 @@ var FILE_ENCODING = 'utf-8',
         'Mesh.js',
         'Scene.js',
         'Renderer.js',
-        'CanvasRenderer.js'
+        'CanvasRenderer.js',
+        'SVGRenderer.js'
     ];
 
 // Returns a path string from a list of path segments

@@ -16,10 +16,6 @@ FSS.Renderer.prototype = {
     this.height = height;
     this.halfWidth = this.width * 0.5;
     this.halfHeight = this.height * 0.5;
-    if (this.element) {
-      this.element.width = width;
-      this.element.height = height;
-    }
     return this;
   },
   clear: function() {
