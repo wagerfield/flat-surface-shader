@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Gabriela);
+@import url(http://fonts.googleapis.com/css?family=Gabriela|Dosis:200);
 
 body {
   font-family: "Vidaloka", serif;
@@ -59,7 +59,7 @@ a:hover {
 
 .wrapper {
   transition: opacity 0.4s ease-out;
-  margin: -260px -180px;
+  margin: -280px -180px;
   text-align: center;
   position: absolute;
   height: 560px;
@@ -93,8 +93,55 @@ a:hover {
 .controls {
   font-smoothing: subpixel-antialiased;
   position: absolute;
-  right: 0;
+  right: 20px;
   top: 0;
+}
+
+.links {
+  position: absolute;
+  list-style: none;
+  width: 120px;
+  bottom: 40px;
+  right: 20px;
+  padding: 0;
+  margin: 0;
+}
+
+.links li {
+  border-bottom: #222 1px solid;
+  border-bottom: rgba(255,255,255,0.1) 1px solid;
+}
+
+.links li a {
+  transition: opacity 0.2s ease-out;
+  font-smoothing: subpixel-antialiased;
+  font-family: 'Dosis', sans-serif;
+  text-transform: uppercase;
+  text-align: right;
+  padding: 0.25em 0;
+  letter-spacing: 2px;
+  font-weight: 200;
+  font-size: 12px;
+  display: block;
+  width: 100%;
+  opacity: 0.4;
+  color: #FFF;
+}
+
+.links li a:hover {
+  opacity: 0.8;
+}
+
+.links li .download:before {
+  opacity: 0.5;
+  content: '↓';
+  float: left;
+}
+
+.links li .source:before {
+  opacity: 0.5;
+  content: '{}';
+  float: left;
 }
 
 .vignette {
