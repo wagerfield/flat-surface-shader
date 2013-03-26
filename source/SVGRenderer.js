@@ -2,34 +2,34 @@
  * @class SVG Renderer
  * @author Matthew Wagerfield
  */
-SHARD.SVGRenderer = function() {
-  SHARD.Renderer.call(this);
-  this.element = document.createElementNS(SHARD.SVGNS, 'svg');
-  this.element.setAttribute('xmlns', SHARD.SVGNS);
+FSS.SVGRenderer = function() {
+  FSS.Renderer.call(this);
+  this.element = document.createElementNS(FSS.SVGNS, 'svg');
+  this.element.setAttribute('xmlns', FSS.SVGNS);
   this.element.setAttribute('version', '1.1');
   this.element.style.display = 'block';
   this.setSize(300, 150);
 };
 
-SHARD.SVGRenderer.prototype = Object.create(SHARD.Renderer.prototype);
+FSS.SVGRenderer.prototype = Object.create(FSS.Renderer.prototype);
 
-SHARD.SVGRenderer.prototype.setSize = function(width, height) {
-  SHARD.Renderer.prototype.setSize.call(this, width, height);
+FSS.SVGRenderer.prototype.setSize = function(width, height) {
+  FSS.Renderer.prototype.setSize.call(this, width, height);
   this.element.setAttribute('width', width);
   this.element.setAttribute('height', height);
   return this;
 };
 
-SHARD.SVGRenderer.prototype.clear = function() {
-  SHARD.Renderer.prototype.clear.call(this);
+FSS.SVGRenderer.prototype.clear = function() {
+  FSS.Renderer.prototype.clear.call(this);
   for (var i = this.element.childNodes.length - 1; i >= 0; i--) {
     this.element.removeChild(this.element.childNodes[i]);
   }
   return this;
 };
 
-SHARD.SVGRenderer.prototype.render = function(scene) {
-  SHARD.Renderer.prototype.render.call(this, scene);
+FSS.SVGRenderer.prototype.render = function(scene) {
+  FSS.Renderer.prototype.render.call(this, scene);
   var m,mesh, t,triangle, points, style;
 
   // Update Meshes
@@ -56,11 +56,11 @@ SHARD.SVGRenderer.prototype.render = function(scene) {
   return this;
 };
 
-SHARD.SVGRenderer.prototype.formatPoint = function(vertex) {
+FSS.SVGRenderer.prototype.formatPoint = function(vertex) {
   return (this.halfWidth+vertex.position[0])+','+(this.halfHeight+vertex.position[1]);
 };
 
-SHARD.SVGRenderer.prototype.formatStyle = function(color) {
+FSS.SVGRenderer.prototype.formatStyle = function(color) {
   var style = 'fill:'+color+';';
   style += 'stroke:'+color+';';
   return style;

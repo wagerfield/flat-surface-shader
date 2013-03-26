@@ -2,8 +2,8 @@
  * @class Plane
  * @author Matthew Wagerfield
  */
-SHARD.Plane = function(width, height, segments, slices) {
-  SHARD.Geometry.call(this);
+FSS.Plane = function(width, height, segments, slices) {
+  FSS.Geometry.call(this);
   this.width = width || 100;
   this.height = height || 100;
   this.segments = segments || 4;
@@ -21,7 +21,7 @@ SHARD.Plane = function(width, height, segments, slices) {
   for (x = 0; x <= this.segments; x++) {
     vertices.push([]);
     for (y = 0; y <= this.slices; y++) {
-      vertex = new SHARD.Vertex(offsetX + x*this.segmentWidth, offsetY - y*this.sliceHeight);
+      vertex = new FSS.Vertex(offsetX + x*this.segmentWidth, offsetY - y*this.sliceHeight);
       vertices[x].push(vertex);
       this.vertices.push(vertex);
     }
@@ -34,11 +34,11 @@ SHARD.Plane = function(width, height, segments, slices) {
       v1 = vertices[x+0][y+1];
       v2 = vertices[x+1][y+0];
       v3 = vertices[x+1][y+1];
-      t0 = new SHARD.Triangle(v0, v1, v2);
-      t1 = new SHARD.Triangle(v2, v1, v3);
+      t0 = new FSS.Triangle(v0, v1, v2);
+      t1 = new FSS.Triangle(v2, v1, v3);
       this.triangles.push(t0, t1);
     }
   }
 };
 
-SHARD.Plane.prototype = Object.create(SHARD.Geometry.prototype);
+FSS.Plane.prototype = Object.create(FSS.Geometry.prototype);

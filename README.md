@@ -1,40 +1,40 @@
-# SHARD | Flat Surface Shader
+# Flat Surface Shader [FSS]
 
 Simple, lightweight **Flat Surface Shader** written in **JavaScript** for rendering lit **Triangles** to a number of contexts. Currently there is support for **Canvas 2D** and **SVG**. Check out this [demo][demo] to see it in action.
 
 ## Understanding Lighting
 
-Simply put, **SHARD** uses the [Lambertian Reflectance][lambert] model to calculate the color of a **Triangle** based on an array of **Light** sources within a **Scene**.
+Simply put, **FSS** uses the [Lambertian Reflectance][lambert] model to calculate the color of a **Triangle** based on an array of **Light** sources within a **Scene**.
 
-#### Light
+### Light
 
 A **Light** is composed of a 3D position **Vector** and 2 **Color** objects defining its **ambient** & **diffuse** emissions. These color channels interact with the **Material** of a **Mesh** to calculate the color of a **Triangle**.
 
-#### Triangle
+### Triangle
 
 A **Triangle** is constructed from **3 Vertices** which each define the **x, y** and **z** coordinates of a corner. Based on these **3 Vertices**, a forth **3D Vector** is automatically derived at the center of the **Triangle** – this is known as its [**Centroid**][centroid]. Alongside the **Centroid**, a fifth [unit][unit] **Vector** is automatically calculated which defines the surface [**Normal**][normal]. The **Normal** describes the direction that the **Triangle** is facing.
 
-#### Geometry
+### Geometry
 
 **Geometry** is simply a collection of triangles – nothing more.
 
-#### Material
+### Material
 
 A **Material** is composed of 2 **Color** objects which define the **ambient** & **diffuse** properties of a *surface*.
 
-#### Mesh
+### Mesh
 
 A **Mesh** is constructed from a **Geometry** object and a **Material** object. All the **Triangles** within the **Geometry** are rendered using the properties of the **Material**.
 
-#### Scene
+### Scene
 
 A **Scene** sits at the very top of the stack. It simply manages an array of **Mesh** & **Light** objects.
 
-#### Renderer
+### Renderer
 
-The **Renderer** takes all the information in a **Scene** and renders it to a context. Currently **SHARD** supports **Canvas 2D** & **SVG**, but a **WebGL** renderer will arrive shortly.
+The **Renderer** takes all the information in a **Scene** and renders it to a context. Currently **FSS** supports **Canvas 2D** & **SVG**, but a **WebGL** renderer will arrive shortly.
 
-#### Calculation
+### Calculation
 
 For every **Triangle** in a **Scene** the following calculation is performed:
 
@@ -46,28 +46,28 @@ For every **Triangle** in a **Scene** the following calculation is performed:
 
 ## Example
 
-**NOTE:** All objects exist within the **SHARD** namespace.
+**NOTE:** All objects exist within the **FSS** namespace.
 
 ```javascript
 // 1) Create a Renderer for the context you would like to render to.
 //    Currently there is a CanvasRenderer and an SVGRenderer.
-var renderer = new SHARD.CanvasRenderer();
+var renderer = new FSS.CanvasRenderer();
 
 // 2) Add the Renderer's element to the DOM:
 var container = document.getElementById('container');
 container.appendChild(renderer.element);
 
 // 3) Create a Scene:
-var scene = new SHARD.Scene();
+var scene = new FSS.Scene();
 
 // 4) Create some Geometry & a Material, pass them to a Mesh constructor, and add the Mesh to the Scene:
-var geometry = new SHARD.Plane(200, 100, 4, 2);
-var material = new SHARD.Material('#444444', '#FFFFFF');
-var mesh = new SHARD.Mesh(geometry, material);
+var geometry = new FSS.Plane(200, 100, 4, 2);
+var material = new FSS.Material('#444444', '#FFFFFF');
+var mesh = new FSS.Mesh(geometry, material);
 scene.add(mesh);
 
 // 5) Create and add a Light to the Scene:
-var light = new SHARD.Light('#FF0000', '#0000FF');
+var light = new FSS.Light('#FF0000', '#0000FF');
 scene.add(light);
 
 // 6) Finally, render the Scene:
@@ -83,6 +83,10 @@ Install Dependancies:
 Build:
 
     node build.js
+    
+## Inspiration
+
+The architecture of this project was heavily influenced by [three.js][three] and the implementation of the Vector calculations was taken from [glMatrix][glmatrix].
 
 ## Author
 
@@ -92,7 +96,7 @@ Matthew Wagerfield: [@mwagerfield][twitter]
 
 Licensed under [MIT][mit]. Enjoy.
 
-[demo]: http://wagerfield.github.com/shard/
+[demo]: http://wagerfield.github.com/flat-surface-shader/
 [lambert]: http://en.wikipedia.org/wiki/Lambertian_reflectance
 [diffuse]: http://en.wikipedia.org/wiki/Diffuse_reflection
 [unit]: http://en.wikipedia.org/wiki/Unit_vector
@@ -100,5 +104,7 @@ Licensed under [MIT][mit]. Enjoy.
 [normal]: http://en.wikipedia.org/wiki/Normal_(geometry)
 [normalise]: http://www.fundza.com/vectors/normalize/index.html
 [dotproduct]: http://www.mathsisfun.com/algebra/vectors-dot-product.html
+[three]: https://github.com/mrdoob/three.js/
+[glmatrix]: https://github.com/toji/gl-matrix
 [twitter]: http://twitter.com/mwagerfield
 [mit]: http://www.opensource.org/licenses/mit-license.php

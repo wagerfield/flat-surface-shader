@@ -33,7 +33,7 @@
  * Defines the Flat Surface Shader namespace for all the awesomeness to exist upon.
  * @author Matthew Wagerfield
  */
-SHARD = {
+FSS = {
   FRONT  : 0,
   BACK   : 1,
   DOUBLE : 2,
@@ -44,20 +44,42 @@ SHARD = {
  * @class Array
  * @author Matthew Wagerfield
  */
-SHARD.Array = typeof Float32Array === 'function' ? Float32Array : Array;
+FSS.Array = typeof Float32Array === 'function' ? Float32Array : Array;
 
 /**
  * Request Animation Frame Polyfill.
- * @author Matthew Wagerfield
+ * @author Paul Irish
+ * @see https://gist.github.com/paulirish/1579671
  */
-window.requestAnimationFrame = (function(){
-  return window.requestAnimationFrame       ||
-         window.webkitRequestAnimationFrame ||
-         window.mozRequestAnimationFrame    ||
-         function(callback) {
-           window.setTimeout(callback, 1000/60);
-         };
-})();
+(function() {
+
+  var lastTime = 0;
+  var vendors = ['ms', 'moz', 'webkit', 'o'];
+
+  for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+    window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+    window.cancelAnimationFrame  = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+  }
+
+  if (!window.requestAnimationFrame) {
+    window.requestAnimationFrame = function(callback, element) {
+      var currentTime = new Date().getTime();
+      var timeToCall = Math.max(0, 16 - (currentTime - lastTime));
+      var id = window.setTimeout(function() {
+        callback(currentTime + timeToCall);
+      }, timeToCall);
+      lastTime = currentTime + timeToCall;
+      return id;
+    };
+  }
+
+  if (!window.cancelAnimationFrame) {
+    window.cancelAnimationFrame = function(id) {
+      clearTimeout(id);
+    };
+  }
+
+}());
 
 /**
  * @object Math Augmentation
@@ -78,9 +100,9 @@ Math.clamp = function(value, min, max) {
  * @object Vector3
  * @author Matthew Wagerfield
  */
-SHARD.Vector3 = {
+FSS.Vector3 = {
   create: function(x, y, z) {
-    var vector = new SHARD.Array(3);
+    var vector = new FSS.Array(3);
     this.set(vector, x, y, z);
     return vector;
   },
@@ -269,13 +291,13 @@ SHARD.Vector3 = {
  * @class Color
  * @author Matthew Wagerfield
  */
-SHARD.Color = function(hex) {
-  this.rgb = SHARD.Vector3.create();
+FSS.Color = function(hex) {
+  this.rgb = FSS.Vector3.create();
   this.hex = hex || '#000000';
   this.set(this.hex);
 };
 
-SHARD.Color.prototype = {
+FSS.Color.prototype = {
   set: function(hex) {
     hex = hex.replace('#', '');
     var size = hex.length / 3;
@@ -302,13 +324,13 @@ SHARD.Color.prototype = {
  * @class Object
  * @author Matthew Wagerfield
  */
-SHARD.Object = function() {
-  this.position = SHARD.Vector3.create();
+FSS.Object = function() {
+  this.position = FSS.Vector3.create();
 };
 
-SHARD.Object.prototype = {
+FSS.Object.prototype = {
   setPosition: function(x, y, z) {
-    SHARD.Vector3.set(this.position, x, y, z);
+    FSS.Vector3.set(this.position, x, y, z);
     return this;
   }
 };
@@ -317,26 +339,26 @@ SHARD.Object.prototype = {
  * @class Light
  * @author Matthew Wagerfield
  */
-SHARD.Light = function(ambient, diffuse) {
-  SHARD.Object.call(this);
-  this.ambient = new SHARD.Color(ambient || '#FFFFFF');
-  this.diffuse = new SHARD.Color(diffuse || '#FFFFFF');
-  this.ray = SHARD.Vector3.create();
+FSS.Light = function(ambient, diffuse) {
+  FSS.Object.call(this);
+  this.ambient = new FSS.Color(ambient || '#FFFFFF');
+  this.diffuse = new FSS.Color(diffuse || '#FFFFFF');
+  this.ray = FSS.Vector3.create();
 };
 
-SHARD.Light.prototype = Object.create(SHARD.Object.prototype);
+FSS.Light.prototype = Object.create(FSS.Object.prototype);
 
 /**
  * @class Vertex
  * @author Matthew Wagerfield
  */
-SHARD.Vertex = function(x, y, z) {
-  this.position = SHARD.Vector3.create(x, y, z);
+FSS.Vertex = function(x, y, z) {
+  this.position = FSS.Vector3.create(x, y, z);
 };
 
-SHARD.Vertex.prototype = {
+FSS.Vertex.prototype = {
   setPosition: function(x, y, z) {
-    SHARD.Vector3.set(this.position, x, y, z);
+    FSS.Vector3.set(this.position, x, y, z);
     return this;
   }
 };
@@ -345,16 +367,16 @@ SHARD.Vertex.prototype = {
  * @class Triangle
  * @author Matthew Wagerfield
  */
-SHARD.Triangle = function(a, b, c) {
-  this.a = a || new SHARD.Vertex();
-  this.b = b || new SHARD.Vertex();
-  this.c = c || new SHARD.Vertex();
-  this.u = SHARD.Vector3.create();
-  this.v = SHARD.Vector3.create();
-  this.centroid = SHARD.Vector3.create();
-  this.normal = SHARD.Vector3.create();
-  this.color = new SHARD.Color();
-  this.polygon = document.createElementNS(SHARD.SVGNS, 'polygon');
+FSS.Triangle = function(a, b, c) {
+  this.a = a || new FSS.Vertex();
+  this.b = b || new FSS.Vertex();
+  this.c = c || new FSS.Vertex();
+  this.u = FSS.Vector3.create();
+  this.v = FSS.Vector3.create();
+  this.centroid = FSS.Vector3.create();
+  this.normal = FSS.Vector3.create();
+  this.color = new FSS.Color();
+  this.polygon = document.createElementNS(FSS.SVGNS, 'polygon');
   this.polygon.setAttributeNS(null, 'stroke-linejoin', 'round');
   this.polygon.setAttributeNS(null, 'stroke-miterlimit', '1');
   this.polygon.setAttributeNS(null, 'stroke-width', '1');
@@ -362,19 +384,19 @@ SHARD.Triangle = function(a, b, c) {
   this.computeNormal();
 };
 
-SHARD.Triangle.prototype = {
+FSS.Triangle.prototype = {
   computeCentroid: function() {
     this.centroid[0] = this.a.position[0] + this.b.position[0] + this.c.position[0];
     this.centroid[1] = this.a.position[1] + this.b.position[1] + this.c.position[1];
     this.centroid[2] = this.a.position[2] + this.b.position[2] + this.c.position[2];
-    SHARD.Vector3.divideScalar(this.centroid, 3);
+    FSS.Vector3.divideScalar(this.centroid, 3);
     return this;
   },
   computeNormal: function() {
-    SHARD.Vector3.subtractVectors(this.u, this.b.position, this.a.position);
-    SHARD.Vector3.subtractVectors(this.v, this.c.position, this.a.position);
-    SHARD.Vector3.crossVectors(this.normal, this.u, this.v);
-    SHARD.Vector3.normalise(this.normal);
+    FSS.Vector3.subtractVectors(this.u, this.b.position, this.a.position);
+    FSS.Vector3.subtractVectors(this.v, this.c.position, this.a.position);
+    FSS.Vector3.crossVectors(this.normal, this.u, this.v);
+    FSS.Vector3.normalise(this.normal);
     return this;
   }
 };
@@ -383,13 +405,13 @@ SHARD.Triangle.prototype = {
  * @class Geometry
  * @author Matthew Wagerfield
  */
-SHARD.Geometry = function() {
+FSS.Geometry = function() {
   this.vertices = [];
   this.triangles = [];
   this.dirty = false;
 };
 
-SHARD.Geometry.prototype = {
+FSS.Geometry.prototype = {
   update: function() {
     if (this.dirty) {
       var t,triangle;
@@ -408,8 +430,8 @@ SHARD.Geometry.prototype = {
  * @class Plane
  * @author Matthew Wagerfield
  */
-SHARD.Plane = function(width, height, segments, slices) {
-  SHARD.Geometry.call(this);
+FSS.Plane = function(width, height, segments, slices) {
+  FSS.Geometry.call(this);
   this.width = width || 100;
   this.height = height || 100;
   this.segments = segments || 4;
@@ -427,7 +449,7 @@ SHARD.Plane = function(width, height, segments, slices) {
   for (x = 0; x <= this.segments; x++) {
     vertices.push([]);
     for (y = 0; y <= this.slices; y++) {
-      vertex = new SHARD.Vertex(offsetX + x*this.segmentWidth, offsetY - y*this.sliceHeight);
+      vertex = new FSS.Vertex(offsetX + x*this.segmentWidth, offsetY - y*this.sliceHeight);
       vertices[x].push(vertex);
       this.vertices.push(vertex);
     }
@@ -440,40 +462,40 @@ SHARD.Plane = function(width, height, segments, slices) {
       v1 = vertices[x+0][y+1];
       v2 = vertices[x+1][y+0];
       v3 = vertices[x+1][y+1];
-      t0 = new SHARD.Triangle(v0, v1, v2);
-      t1 = new SHARD.Triangle(v2, v1, v3);
+      t0 = new FSS.Triangle(v0, v1, v2);
+      t1 = new FSS.Triangle(v2, v1, v3);
       this.triangles.push(t0, t1);
     }
   }
 };
 
-SHARD.Plane.prototype = Object.create(SHARD.Geometry.prototype);
+FSS.Plane.prototype = Object.create(FSS.Geometry.prototype);
 
 /**
  * @class Material
  * @author Matthew Wagerfield
  */
-SHARD.Material = function(ambient, diffuse) {
-  this.ambient = new SHARD.Color(ambient || '#444444');
-  this.diffuse = new SHARD.Color(diffuse || '#FFFFFF');
-  this.slave = new SHARD.Color();
+FSS.Material = function(ambient, diffuse) {
+  this.ambient = new FSS.Color(ambient || '#444444');
+  this.diffuse = new FSS.Color(diffuse || '#FFFFFF');
+  this.slave = new FSS.Color();
 };
 
 /**
  * @class Mesh
  * @author Matthew Wagerfield
  */
-SHARD.Mesh = function(geometry, material) {
-  SHARD.Object.call(this);
-  this.geometry = geometry || new SHARD.Geometry();
-  this.material = material || new SHARD.Material();
-  this.side = SHARD.FRONT;
+FSS.Mesh = function(geometry, material) {
+  FSS.Object.call(this);
+  this.geometry = geometry || new FSS.Geometry();
+  this.material = material || new FSS.Material();
+  this.side = FSS.FRONT;
   this.visible = true;
 };
 
-SHARD.Mesh.prototype = Object.create(SHARD.Object.prototype);
+FSS.Mesh.prototype = Object.create(FSS.Object.prototype);
 
-SHARD.Mesh.prototype.update = function(lights) {
+FSS.Mesh.prototype.update = function(lights) {
   var t,triangle, l,light, illuminance;
 
   // Update Geometry
@@ -484,36 +506,36 @@ SHARD.Mesh.prototype.update = function(lights) {
     triangle = this.geometry.triangles[t];
 
     // Reset Triangle Color
-    SHARD.Vector3.set(triangle.color.rgb);
+    FSS.Vector3.set(triangle.color.rgb);
 
     // Iterate through Lights
     for (l = lights.length - 1; l >= 0; l--) {
       light = lights[l];
 
       // Calculate Illuminance
-      SHARD.Vector3.subtractVectors(light.ray, light.position, triangle.centroid);
-      SHARD.Vector3.normalise(light.ray);
-      illuminance = SHARD.Vector3.dot(triangle.normal, light.ray);
-      if (this.side === SHARD.FRONT) {
+      FSS.Vector3.subtractVectors(light.ray, light.position, triangle.centroid);
+      FSS.Vector3.normalise(light.ray);
+      illuminance = FSS.Vector3.dot(triangle.normal, light.ray);
+      if (this.side === FSS.FRONT) {
         illuminance = Math.max(illuminance, 0);
-      } else if (this.side === SHARD.BACK) {
+      } else if (this.side === FSS.BACK) {
         illuminance = Math.abs(Math.min(illuminance, 0));
-      } else if (this.side === SHARD.DOUBLE) {
+      } else if (this.side === FSS.DOUBLE) {
         illuminance = Math.max(Math.abs(illuminance), 0);
       }
 
       // Calculate Ambient Light
-      SHARD.Vector3.multiplyVectors(this.material.slave.rgb, this.material.ambient.rgb, light.ambient.rgb);
-      SHARD.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
+      FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.ambient.rgb, light.ambient.rgb);
+      FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
 
       // Calculate Diffuse Light
-      SHARD.Vector3.multiplyVectors(this.material.slave.rgb, this.material.diffuse.rgb, light.diffuse.rgb);
-      SHARD.Vector3.multiplyScalar(this.material.slave.rgb, illuminance);
-      SHARD.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
+      FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.diffuse.rgb, light.diffuse.rgb);
+      FSS.Vector3.multiplyScalar(this.material.slave.rgb, illuminance);
+      FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
     }
 
     // Clamp & Format Color
-    SHARD.Vector3.clamp(triangle.color.rgb, 0, 1);
+    FSS.Vector3.clamp(triangle.color.rgb, 0, 1);
   }
   return this;
 };
@@ -522,24 +544,24 @@ SHARD.Mesh.prototype.update = function(lights) {
  * @class Scene
  * @author Matthew Wagerfield
  */
-SHARD.Scene = function() {
+FSS.Scene = function() {
   this.meshes = [];
   this.lights = [];
 };
 
-SHARD.Scene.prototype = {
+FSS.Scene.prototype = {
   add: function(object) {
-    if (object instanceof SHARD.Mesh && !~this.meshes.indexOf(object)) {
+    if (object instanceof FSS.Mesh && !~this.meshes.indexOf(object)) {
       this.meshes.push(object);
-    } else if (object instanceof SHARD.Light && !~this.lights.indexOf(object)) {
+    } else if (object instanceof FSS.Light && !~this.lights.indexOf(object)) {
       this.lights.push(object);
     }
     return this;
   },
   remove: function(object) {
-    if (object instanceof SHARD.Mesh && ~this.meshes.indexOf(object)) {
+    if (object instanceof FSS.Mesh && ~this.meshes.indexOf(object)) {
       this.meshes.splice(this.meshes.indexOf(object), 1);
-    } else if (object instanceof SHARD.Light && ~this.lights.indexOf(object)) {
+    } else if (object instanceof FSS.Light && ~this.lights.indexOf(object)) {
       this.lights.splice(this.lights.indexOf(object), 1);
     }
     return this;
@@ -550,14 +572,14 @@ SHARD.Scene.prototype = {
  * @class Renderer
  * @author Matthew Wagerfield
  */
-SHARD.Renderer = function() {
+FSS.Renderer = function() {
   this.width = 0;
   this.height = 0;
   this.halfWidth = 0;
   this.halfHeight = 0;
 };
 
-SHARD.Renderer.prototype = {
+FSS.Renderer.prototype = {
   setSize: function(width, height) {
     if (this.width === width && this.height === height) return;
     this.width = width;
@@ -578,32 +600,32 @@ SHARD.Renderer.prototype = {
  * @class Canvas Renderer
  * @author Matthew Wagerfield
  */
-SHARD.CanvasRenderer = function() {
-  SHARD.Renderer.call(this);
+FSS.CanvasRenderer = function() {
+  FSS.Renderer.call(this);
   this.element = document.createElement('canvas');
   this.element.style.display = 'block';
   this.context = this.element.getContext('2d');
   this.setSize(this.element.width, this.element.height);
 };
 
-SHARD.CanvasRenderer.prototype = Object.create(SHARD.Renderer.prototype);
+FSS.CanvasRenderer.prototype = Object.create(FSS.Renderer.prototype);
 
-SHARD.CanvasRenderer.prototype.setSize = function(width, height) {
-  SHARD.Renderer.prototype.setSize.call(this, width, height);
+FSS.CanvasRenderer.prototype.setSize = function(width, height) {
+  FSS.Renderer.prototype.setSize.call(this, width, height);
   this.element.width = width;
   this.element.height = height;
   this.context.setTransform(1, 0, 0, -1, this.halfWidth, this.halfHeight);
   return this;
 };
 
-SHARD.CanvasRenderer.prototype.clear = function() {
-  SHARD.Renderer.prototype.clear.call(this);
+FSS.CanvasRenderer.prototype.clear = function() {
+  FSS.Renderer.prototype.clear.call(this);
   this.context.clearRect(-this.halfWidth, -this.halfHeight, this.width, this.height);
   return this;
 };
 
-SHARD.CanvasRenderer.prototype.render = function(scene) {
-  SHARD.Renderer.prototype.render.call(this, scene);
+FSS.CanvasRenderer.prototype.render = function(scene) {
+  FSS.Renderer.prototype.render.call(this, scene);
   var m,mesh, t,triangle, color;
 
   // Clear Context
@@ -642,34 +664,34 @@ SHARD.CanvasRenderer.prototype.render = function(scene) {
  * @class SVG Renderer
  * @author Matthew Wagerfield
  */
-SHARD.SVGRenderer = function() {
-  SHARD.Renderer.call(this);
-  this.element = document.createElementNS(SHARD.SVGNS, 'svg');
-  this.element.setAttribute('xmlns', SHARD.SVGNS);
+FSS.SVGRenderer = function() {
+  FSS.Renderer.call(this);
+  this.element = document.createElementNS(FSS.SVGNS, 'svg');
+  this.element.setAttribute('xmlns', FSS.SVGNS);
   this.element.setAttribute('version', '1.1');
   this.element.style.display = 'block';
   this.setSize(300, 150);
 };
 
-SHARD.SVGRenderer.prototype = Object.create(SHARD.Renderer.prototype);
+FSS.SVGRenderer.prototype = Object.create(FSS.Renderer.prototype);
 
-SHARD.SVGRenderer.prototype.setSize = function(width, height) {
-  SHARD.Renderer.prototype.setSize.call(this, width, height);
+FSS.SVGRenderer.prototype.setSize = function(width, height) {
+  FSS.Renderer.prototype.setSize.call(this, width, height);
   this.element.setAttribute('width', width);
   this.element.setAttribute('height', height);
   return this;
 };
 
-SHARD.SVGRenderer.prototype.clear = function() {
-  SHARD.Renderer.prototype.clear.call(this);
+FSS.SVGRenderer.prototype.clear = function() {
+  FSS.Renderer.prototype.clear.call(this);
   for (var i = this.element.childNodes.length - 1; i >= 0; i--) {
     this.element.removeChild(this.element.childNodes[i]);
   }
   return this;
 };
 
-SHARD.SVGRenderer.prototype.render = function(scene) {
-  SHARD.Renderer.prototype.render.call(this, scene);
+FSS.SVGRenderer.prototype.render = function(scene) {
+  FSS.Renderer.prototype.render.call(this, scene);
   var m,mesh, t,triangle, points, style;
 
   // Update Meshes
@@ -696,11 +718,11 @@ SHARD.SVGRenderer.prototype.render = function(scene) {
   return this;
 };
 
-SHARD.SVGRenderer.prototype.formatPoint = function(vertex) {
+FSS.SVGRenderer.prototype.formatPoint = function(vertex) {
   return (this.halfWidth+vertex.position[0])+','+(this.halfHeight+vertex.position[1]);
 };
 
-SHARD.SVGRenderer.prototype.formatStyle = function(color) {
+FSS.SVGRenderer.prototype.formatStyle = function(color) {
   var style = 'fill:'+color+';';
   style += 'stroke:'+color+';';
   return style;
