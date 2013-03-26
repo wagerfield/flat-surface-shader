@@ -2,11 +2,11 @@
  * @class Light
  * @author Matthew Wagerfield
  */
-SHARD.Light = function(ambient, diffuse) {
-  SHARD.Object.call(this);
-  this.ambient = new SHARD.Color(ambient || '#FFFFFF');
-  this.diffuse = new SHARD.Color(diffuse || '#FFFFFF');
-  this.ray = SHARD.Vector3.create();
+FSS.Light = function(ambient, diffuse) {
+  FSS.Object.call(this);
+  this.ambient = new FSS.Color(ambient || '#FFFFFF');
+  this.diffuse = new FSS.Color(diffuse || '#FFFFFF');
+  this.ray = FSS.Vector3.create();
 };
 
-SHARD.Light.prototype = Object.create(SHARD.Object.prototype);
+FSS.Light.prototype = Object.create(FSS.Object.prototype);

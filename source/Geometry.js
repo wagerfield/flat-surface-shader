@@ -2,13 +2,13 @@
  * @class Geometry
  * @author Matthew Wagerfield
  */
-SHARD.Geometry = function() {
+FSS.Geometry = function() {
   this.vertices = [];
   this.triangles = [];
   this.dirty = false;
 };
 
-SHARD.Geometry.prototype = {
+FSS.Geometry.prototype = {
   update: function() {
     if (this.dirty) {
       var t,triangle;

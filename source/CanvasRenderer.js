@@ -2,32 +2,32 @@
  * @class Canvas Renderer
  * @author Matthew Wagerfield
  */
-SHARD.CanvasRenderer = function() {
-  SHARD.Renderer.call(this);
+FSS.CanvasRenderer = function() {
+  FSS.Renderer.call(this);
   this.element = document.createElement('canvas');
   this.element.style.display = 'block';
   this.context = this.element.getContext('2d');
   this.setSize(this.element.width, this.element.height);
 };
 
-SHARD.CanvasRenderer.prototype = Object.create(SHARD.Renderer.prototype);
+FSS.CanvasRenderer.prototype = Object.create(FSS.Renderer.prototype);
 
-SHARD.CanvasRenderer.prototype.setSize = function(width, height) {
-  SHARD.Renderer.prototype.setSize.call(this, width, height);
+FSS.CanvasRenderer.prototype.setSize = function(width, height) {
+  FSS.Renderer.prototype.setSize.call(this, width, height);
   this.element.width = width;
   this.element.height = height;
   this.context.setTransform(1, 0, 0, -1, this.halfWidth, this.halfHeight);
   return this;
 };
 
-SHARD.CanvasRenderer.prototype.clear = function() {
-  SHARD.Renderer.prototype.clear.call(this);
+FSS.CanvasRenderer.prototype.clear = function() {
+  FSS.Renderer.prototype.clear.call(this);
   this.context.clearRect(-this.halfWidth, -this.halfHeight, this.width, this.height);
   return this;
 };
 
-SHARD.CanvasRenderer.prototype.render = function(scene) {
-  SHARD.Renderer.prototype.render.call(this, scene);
+FSS.CanvasRenderer.prototype.render = function(scene) {
+  FSS.Renderer.prototype.render.call(this, scene);
   var m,mesh, t,triangle, color;
 
   // Clear Context

@@ -2,13 +2,13 @@
  * @class Color
  * @author Matthew Wagerfield
  */
-SHARD.Color = function(hex) {
-  this.rgb = SHARD.Vector3.create();
+FSS.Color = function(hex) {
+  this.rgb = FSS.Vector3.create();
   this.hex = hex || '#000000';
   this.set(this.hex);
 };
 
-SHARD.Color.prototype = {
+FSS.Color.prototype = {
   set: function(hex) {
     hex = hex.replace('#', '');
     var size = hex.length / 3;

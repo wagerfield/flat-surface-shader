@@ -3,7 +3,7 @@
   <head>
 
     <meta charset="utf-8"/>
-    <title>SHARD | SVG Basic Example</title>
+    <title>FSS | SVG Basic Example</title>
     <meta name="author" content="Matthew Wagerfield"/>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
 
@@ -25,16 +25,16 @@
     <div id="container" class="container">
     </div>
 
-    <script src="../deploy/shard.js"></script>
+    <script src="../deploy/fss.js"></script>
     <script>
 
     var container = document.getElementById('container');
-    var renderer = new SHARD.SVGRenderer();
-    var scene = new SHARD.Scene();
-    var light = new SHARD.Light('#111122', '#FF0022');
-    var geometry = new SHARD.Plane(600, 400, 6, 4);
-    var material = new SHARD.Material('#FFFFFF', '#FFFFFF');
-    var mesh = new SHARD.Mesh(geometry, material);
+    var renderer = new FSS.SVGRenderer();
+    var scene = new FSS.Scene();
+    var light = new FSS.Light('#111122', '#FF0022');
+    var geometry = new FSS.Plane(600, 400, 6, 4);
+    var material = new FSS.Material('#FFFFFF', '#FFFFFF');
+    var mesh = new FSS.Mesh(geometry, material);
     var now, start = Date.now();
 
     function initialise() {
@@ -50,7 +50,7 @@
 
     function animate() {
       now = Date.now() - start;
-      light.setPosition(150*Math.sin(now*0.005), 100*Math.cos(now*0.005), 60);
+      light.setPosition(300*Math.sin(now*0.001), 200*Math.cos(now*0.0005), 60);
       renderer.render(scene);
       requestAnimationFrame(animate);
     }
