@@ -35,8 +35,8 @@
     maxDistance: 400,
     autopilot: false,
     draw: true,
-    bounds: SHARD.Vector3.create(),
-    step: SHARD.Vector3.create(
+    bounds: FSS.Vector3.create(),
+    step: FSS.Vector3.create(
       Math.randomInRange(0.2, 1.0),
       Math.randomInRange(0.2, 1.0),
       Math.randomInRange(0.2, 1.0)
@@ -81,8 +81,8 @@
         light = scene.lights[l];
         x = Math.randomInRange(this.width*this.minLightX, this.width*this.maxLightX);
         y = Math.randomInRange(this.height*this.minLightY, this.height*this.maxLightY);
-        SHARD.Vector3.set(light.position, x, this.height-y, this.lightZ);
-        SHARD.Vector3.subtract(light.position, center);
+        FSS.Vector3.set(light.position, x, this.height-y, this.lightZ);
+        FSS.Vector3.subtract(light.position, center);
       }
 
       update();
@@ -119,8 +119,8 @@
   // Global Properties
   //------------------------------
   var now, start = Date.now();
-  var center = SHARD.Vector3.create();
-  var attractor = SHARD.Vector3.create();
+  var center = FSS.Vector3.create();
+  var attractor = FSS.Vector3.create();
   var container = document.getElementById('container');
   var controls = document.getElementById('controls');
   var output = document.getElementById('output');
@@ -144,8 +144,8 @@
   }
 
   function createRenderer() {
-    svgRenderer = new SHARD.SVGRenderer();
-    canvasRenderer = new SHARD.CanvasRenderer();
+    svgRenderer = new FSS.SVGRenderer();
+    canvasRenderer = new FSS.CanvasRenderer();
     setRenderer(RENDER.renderer);
   }
 
@@ -166,23 +166,23 @@
   }
 
   function createScene() {
-    scene = new SHARD.Scene();
+    scene = new FSS.Scene();
   }
 
   function createMesh() {
     scene.remove(mesh);
     renderer.clear();
-    geometry = new SHARD.Plane(MESH.width * renderer.width, MESH.height * renderer.height, MESH.segments, MESH.slices);
-    material = new SHARD.Material(MESH.ambient, MESH.diffuse);
-    mesh = new SHARD.Mesh(geometry, material);
+    geometry = new FSS.Plane(MESH.width * renderer.width, MESH.height * renderer.height, MESH.segments, MESH.slices);
+    material = new FSS.Material(MESH.ambient, MESH.diffuse);
+    mesh = new FSS.Mesh(geometry, material);
     scene.add(mesh);
 
     // Augment vertices for animation
     var v, vertex;
     for (v = geometry.vertices.length - 1; v >= 0; v--) {
       vertex = geometry.vertices[v];
-      vertex.anchor = SHARD.Vector3.clone(vertex.position);
-      vertex.step = SHARD.Vector3.create(
+      vertex.anchor = FSS.Vector3.clone(vertex.position);
+      vertex.step = FSS.Vector3.create(
         Math.randomInRange(0.2, 1.0),
         Math.randomInRange(0.2, 1.0),
         Math.randomInRange(0.2, 1.0)
@@ -199,26 +199,26 @@
     }
     renderer.clear();
     for (l = 0; l < LIGHT.count; l++) {
-      light = new SHARD.Light(LIGHT.ambient, LIGHT.diffuse);
+      light = new FSS.Light(LIGHT.ambient, LIGHT.diffuse);
       light.ambientHex = light.ambient.format();
       light.diffuseHex = light.diffuse.format();
       scene.add(light);
 
       // Augment light for animation
       light.mass = Math.randomInRange(0.5, 1);
-      light.velocity = SHARD.Vector3.create();
-      light.acceleration = SHARD.Vector3.create();
-      light.force = SHARD.Vector3.create();
+      light.velocity = FSS.Vector3.create();
+      light.acceleration = FSS.Vector3.create();
+      light.force = FSS.Vector3.create();
 
       // Ring SVG Circle
-      light.ring = document.createElementNS(SHARD.SVGNS, 'circle');
+      light.ring = document.createElementNS(FSS.SVGNS, 'circle');
       light.ring.setAttributeNS(null, 'stroke', light.ambientHex);
       light.ring.setAttributeNS(null, 'stroke-width', '0.5');
       light.ring.setAttributeNS(null, 'fill', 'none');
       light.ring.setAttributeNS(null, 'r', '10');
 
       // Core SVG Circle
-      light.core = document.createElementNS(SHARD.SVGNS, 'circle');
+      light.core = document.createElementNS(FSS.SVGNS, 'circle');
       light.core.setAttributeNS(null, 'fill', light.diffuseHex);
       light.core.setAttributeNS(null, 'r', '4');
     }
@@ -226,7 +226,7 @@
 
   function resize(width, height) {
     renderer.setSize(width, height);
-    SHARD.Vector3.set(center, renderer.halfWidth, renderer.halfHeight);
+    FSS.Vector3.set(center, renderer.halfWidth, renderer.halfHeight);
     createMesh();
   }
 
@@ -241,17 +241,17 @@
     var ox, oy, oz, l, light, v, vertex, offset = MESH.depth/2;
 
     // Update Bounds
-    SHARD.Vector3.copy(LIGHT.bounds, center);
-    SHARD.Vector3.multiplyScalar(LIGHT.bounds, LIGHT.xyScalar);
+    FSS.Vector3.copy(LIGHT.bounds, center);
+    FSS.Vector3.multiplyScalar(LIGHT.bounds, LIGHT.xyScalar);
 
     // Update Attractor
-    SHARD.Vector3.setZ(attractor, LIGHT.zOffset);
+    FSS.Vector3.setZ(attractor, LIGHT.zOffset);
 
     // Overwrite the Attractor position
     if (LIGHT.autopilot) {
       ox = Math.sin(LIGHT.step[0] * now * LIGHT.speed);
       oy = Math.cos(LIGHT.step[1] * now * LIGHT.speed);
-      SHARD.Vector3.set(attractor,
+      FSS.Vector3.set(attractor,
         LIGHT.bounds[0]*ox,
         LIGHT.bounds[1]*oy,
         LIGHT.zOffset);
@@ -262,22 +262,22 @@
       light = scene.lights[l];
 
       // Reset the z position of the light
-      SHARD.Vector3.setZ(light.position, LIGHT.zOffset);
+      FSS.Vector3.setZ(light.position, LIGHT.zOffset);
 
       // Calculate the force Luke!
-      var D = Math.clamp(SHARD.Vector3.distanceSquared(light.position, attractor), LIGHT.minDistance, LIGHT.maxDistance);
+      var D = Math.clamp(FSS.Vector3.distanceSquared(light.position, attractor), LIGHT.minDistance, LIGHT.maxDistance);
       var F = LIGHT.gravity * light.mass / D;
-      SHARD.Vector3.subtractVectors(light.force, attractor, light.position);
-      SHARD.Vector3.normalise(light.force);
-      SHARD.Vector3.multiplyScalar(light.force, F);
+      FSS.Vector3.subtractVectors(light.force, attractor, light.position);
+      FSS.Vector3.normalise(light.force);
+      FSS.Vector3.multiplyScalar(light.force, F);
 
       // Update the light position
-      SHARD.Vector3.set(light.acceleration);
-      SHARD.Vector3.add(light.acceleration, light.force);
-      SHARD.Vector3.add(light.velocity, light.acceleration);
-      SHARD.Vector3.multiplyScalar(light.velocity, LIGHT.dampening);
-      SHARD.Vector3.limit(light.velocity, LIGHT.minLimit, LIGHT.maxLimit);
-      SHARD.Vector3.add(light.position, light.velocity);
+      FSS.Vector3.set(light.acceleration);
+      FSS.Vector3.add(light.acceleration, light.force);
+      FSS.Vector3.add(light.velocity, light.acceleration);
+      FSS.Vector3.multiplyScalar(light.velocity, LIGHT.dampening);
+      FSS.Vector3.limit(light.velocity, LIGHT.minLimit, LIGHT.maxLimit);
+      FSS.Vector3.add(light.position, light.velocity);
     }
 
     // Animate Vertices
@@ -286,11 +286,11 @@
       ox = Math.sin(vertex.time + vertex.step[0] * now * MESH.speed);
       oy = Math.cos(vertex.time + vertex.step[1] * now * MESH.speed);
       oz = Math.sin(vertex.time + vertex.step[2] * now * MESH.speed);
-      SHARD.Vector3.set(vertex.position,
+      FSS.Vector3.set(vertex.position,
         MESH.xRange*geometry.segmentWidth*ox,
         MESH.yRange*geometry.sliceHeight*oy,
         MESH.zRange*offset*oz - offset);
-      SHARD.Vector3.add(vertex.position, vertex.anchor);
+      FSS.Vector3.add(vertex.position, vertex.anchor);
     }
 
     // Set the Geometry to dirty
@@ -452,15 +452,15 @@
   // Callbacks
   //------------------------------
   function onMouseClick(event) {
-    SHARD.Vector3.set(attractor, event.x, renderer.height - event.y);
-    SHARD.Vector3.subtract(attractor, center);
+    FSS.Vector3.set(attractor, event.x, renderer.height - event.y);
+    FSS.Vector3.subtract(attractor, center);
     LIGHT.autopilot = !LIGHT.autopilot;
     autopilotController.updateDisplay();
   }
 
   function onMouseMove(event) {
-    SHARD.Vector3.set(attractor, event.x, renderer.height - event.y);
-    SHARD.Vector3.subtract(attractor, center);
+    FSS.Vector3.set(attractor, event.x, renderer.height - event.y);
+    FSS.Vector3.subtract(attractor, center);
   }
 
   function onWindowResize(event) {
