@@ -330,9 +330,11 @@
           case SVG:
             lx += renderer.halfWidth;
             ly = renderer.halfHeight - ly;
+            light.core.setAttributeNS(null, 'fill', light.diffuseHex);
             light.core.setAttributeNS(null, 'cx', lx);
             light.core.setAttributeNS(null, 'cy', ly);
             renderer.element.appendChild(light.core);
+            light.ring.setAttributeNS(null, 'stroke', light.ambientHex);
             light.ring.setAttributeNS(null, 'cx', lx);
             light.ring.setAttributeNS(null, 'cy', ly);
             renderer.element.appendChild(light.ring);
