@@ -1,6 +1,6 @@
 # Flat Surface Shader [FSS]
 
-Simple, lightweight **Flat Surface Shader** written in **JavaScript** for rendering lit **Triangles** to a number of contexts. Currently there is support for **Canvas 2D** and **SVG**. Check out this [demo][demo] to see it in action.
+Simple, lightweight **Flat Surface Shader** written in **JavaScript** for rendering lit **Triangles** to a number of contexts. Currently there is support for **WebGL**, **Canvas 2D** and **SVG**. Check out this [demo][demo] to see it in action.
 
 ## Understanding Lighting
 
@@ -28,11 +28,11 @@ A **Mesh** is constructed from a **Geometry** object and a **Material** object. 
 
 ### Scene
 
-A **Scene** sits at the very top of the stack. It simply manages an array of **Mesh** & **Light** objects.
+A **Scene** sits at the very top of the stack. It simply manages arrays of **Mesh** & **Light** objects.
 
 ### Renderer
 
-The **Renderer** takes all the information in a **Scene** and renders it to a context. Currently **FSS** supports **Canvas 2D** & **SVG**, but a **WebGL** renderer will arrive shortly.
+The **Renderer** takes all the information in a **Scene** and renders it to a context. Currently **FSS** supports **WebGL**, **Canvas 2D** and **SVG**.
 
 ### Calculation
 
@@ -50,7 +50,7 @@ For every **Triangle** in a **Scene** the following calculation is performed:
 
 ```javascript
 // 1) Create a Renderer for the context you would like to render to.
-//    Currently there is a CanvasRenderer and an SVGRenderer.
+//    You can use either the WebGLRenderer, CanvasRenderer or SVGRenderer.
 var renderer = new FSS.CanvasRenderer();
 
 // 2) Add the Renderer's element to the DOM:
@@ -83,7 +83,7 @@ Install Dependancies:
 Build:
 
     node build.js
-    
+
 ## Inspiration
 
 The architecture of this project was heavily influenced by [three.js][three] and the implementation of the Vector calculations was taken from [glMatrix][glmatrix].

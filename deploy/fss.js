@@ -47,6 +47,16 @@ FSS = {
 FSS.Array = typeof Float32Array === 'function' ? Float32Array : Array;
 
 /**
+ * @class Utils
+ * @author Matthew Wagerfield
+ */
+FSS.Utils = {
+  isNumber: function(value) {
+    return !isNaN(parseFloat(value)) && isFinite(value);
+  }
+};
+
+/**
  * Request Animation Frame Polyfill.
  * @author Paul Irish
  * @see https://gist.github.com/paulirish/1579671
@@ -288,22 +298,99 @@ FSS.Vector3 = {
 };
 
 /**
+ * @object Vector4
+ * @author Matthew Wagerfield
+ */
+FSS.Vector4 = {
+  create: function(x, y, z, w) {
+    var vector = new FSS.Array(4);
+    this.set(vector, x, y, z);
+    return vector;
+  },
+  set: function(target, x, y, z, w) {
+    target[0] = x || 0;
+    target[1] = y || 0;
+    target[2] = z || 0;
+    target[3] = w || 0;
+    return this;
+  },
+  setX: function(target, x) {
+    target[0] = x || 0;
+    return this;
+  },
+  setY: function(target, y) {
+    target[1] = y || 0;
+    return this;
+  },
+  setZ: function(target, z) {
+    target[2] = z || 0;
+    return this;
+  },
+  setW: function(target, w) {
+    target[3] = w || 0;
+    return this;
+  },
+  add: function(target, a) {
+    target[0] += a[0];
+    target[1] += a[1];
+    target[2] += a[2];
+    target[3] += a[3];
+    return this;
+  },
+  multiplyVectors: function(target, a, b) {
+    target[0] = a[0] * b[0];
+    target[1] = a[1] * b[1];
+    target[2] = a[2] * b[2];
+    target[3] = a[3] * b[3];
+    return this;
+  },
+  multiplyScalar: function(target, s) {
+    target[0] *= s;
+    target[1] *= s;
+    target[2] *= s;
+    target[3] *= s;
+    return this;
+  },
+  min: function(target, value) {
+    if (target[0] < value) { target[0] = value; }
+    if (target[1] < value) { target[1] = value; }
+    if (target[2] < value) { target[2] = value; }
+    if (target[3] < value) { target[3] = value; }
+    return this;
+  },
+  max: function(target, value) {
+    if (target[0] > value) { target[0] = value; }
+    if (target[1] > value) { target[1] = value; }
+    if (target[2] > value) { target[2] = value; }
+    if (target[3] > value) { target[3] = value; }
+    return this;
+  },
+  clamp: function(target, min, max) {
+    this.min(target, min);
+    this.max(target, max);
+    return this;
+  }
+};
+
+/**
  * @class Color
  * @author Matthew Wagerfield
  */
-FSS.Color = function(hex) {
-  this.rgb = FSS.Vector3.create();
+FSS.Color = function(hex, opacity) {
+  this.rgba = FSS.Vector4.create();
   this.hex = hex || '#000000';
-  this.set(this.hex);
+  this.opacity = FSS.Utils.isNumber(opacity) ? opacity : 1;
+  this.set(this.hex, this.opacity);
 };
 
 FSS.Color.prototype = {
-  set: function(hex) {
+  set: function(hex, opacity) {
     hex = hex.replace('#', '');
     var size = hex.length / 3;
-    this.rgb[0] = parseInt(hex.substring(size*0, size*1), 16) / 255;
-    this.rgb[1] = parseInt(hex.substring(size*1, size*2), 16) / 255;
-    this.rgb[2] = parseInt(hex.substring(size*2, size*3), 16) / 255;
+    this.rgba[0] = parseInt(hex.substring(size*0, size*1), 16) / 255;
+    this.rgba[1] = parseInt(hex.substring(size*1, size*2), 16) / 255;
+    this.rgba[2] = parseInt(hex.substring(size*2, size*3), 16) / 255;
+    this.rgba[3] = FSS.Utils.isNumber(opacity) ? opacity : this.rgba[3];
     return this;
   },
   hexify: function(channel) {
@@ -312,9 +399,9 @@ FSS.Color.prototype = {
     return hex;
   },
   format: function() {
-    var r = this.hexify(this.rgb[0]);
-    var g = this.hexify(this.rgb[1]);
-    var b = this.hexify(this.rgb[2]);
+    var r = this.hexify(this.rgba[0]);
+    var g = this.hexify(this.rgba[1]);
+    var b = this.hexify(this.rgba[2]);
     this.hex = '#' + r + g + b;
     return this.hex;
   }
@@ -371,6 +458,7 @@ FSS.Triangle = function(a, b, c) {
   this.a = a || new FSS.Vertex();
   this.b = b || new FSS.Vertex();
   this.c = c || new FSS.Vertex();
+  this.vertices = [this.a, this.b, this.c];
   this.u = FSS.Vector3.create();
   this.v = FSS.Vector3.create();
   this.centroid = FSS.Vector3.create();
@@ -495,47 +583,51 @@ FSS.Mesh = function(geometry, material) {
 
 FSS.Mesh.prototype = Object.create(FSS.Object.prototype);
 
-FSS.Mesh.prototype.update = function(lights) {
+FSS.Mesh.prototype.update = function(lights, calculate) {
   var t,triangle, l,light, illuminance;
 
   // Update Geometry
   this.geometry.update();
 
-  // Iterate through Triangles
-  for (t = this.geometry.triangles.length - 1; t >= 0; t--) {
-    triangle = this.geometry.triangles[t];
+  // Calculate the triangle colors
+  if (calculate) {
 
-    // Reset Triangle Color
-    FSS.Vector3.set(triangle.color.rgb);
+    // Iterate through Triangles
+    for (t = this.geometry.triangles.length - 1; t >= 0; t--) {
+      triangle = this.geometry.triangles[t];
 
-    // Iterate through Lights
-    for (l = lights.length - 1; l >= 0; l--) {
-      light = lights[l];
+      // Reset Triangle Color
+      FSS.Vector4.set(triangle.color.rgba);
 
-      // Calculate Illuminance
-      FSS.Vector3.subtractVectors(light.ray, light.position, triangle.centroid);
-      FSS.Vector3.normalise(light.ray);
-      illuminance = FSS.Vector3.dot(triangle.normal, light.ray);
-      if (this.side === FSS.FRONT) {
-        illuminance = Math.max(illuminance, 0);
-      } else if (this.side === FSS.BACK) {
-        illuminance = Math.abs(Math.min(illuminance, 0));
-      } else if (this.side === FSS.DOUBLE) {
-        illuminance = Math.max(Math.abs(illuminance), 0);
+      // Iterate through Lights
+      for (l = lights.length - 1; l >= 0; l--) {
+        light = lights[l];
+
+        // Calculate Illuminance
+        FSS.Vector3.subtractVectors(light.ray, light.position, triangle.centroid);
+        FSS.Vector3.normalise(light.ray);
+        illuminance = FSS.Vector3.dot(triangle.normal, light.ray);
+        if (this.side === FSS.FRONT) {
+          illuminance = Math.max(illuminance, 0);
+        } else if (this.side === FSS.BACK) {
+          illuminance = Math.abs(Math.min(illuminance, 0));
+        } else if (this.side === FSS.DOUBLE) {
+          illuminance = Math.max(Math.abs(illuminance), 0);
+        }
+
+        // Calculate Ambient Light
+        FSS.Vector4.multiplyVectors(this.material.slave.rgba, this.material.ambient.rgba, light.ambient.rgba);
+        FSS.Vector4.add(triangle.color.rgba, this.material.slave.rgba);
+
+        // Calculate Diffuse Light
+        FSS.Vector4.multiplyVectors(this.material.slave.rgba, this.material.diffuse.rgba, light.diffuse.rgba);
+        FSS.Vector4.multiplyScalar(this.material.slave.rgba, illuminance);
+        FSS.Vector4.add(triangle.color.rgba, this.material.slave.rgba);
       }
 
-      // Calculate Ambient Light
-      FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.ambient.rgb, light.ambient.rgb);
-      FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
-
-      // Calculate Diffuse Light
-      FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.diffuse.rgb, light.diffuse.rgb);
-      FSS.Vector3.multiplyScalar(this.material.slave.rgb, illuminance);
-      FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
+      // Clamp & Format Color
+      FSS.Vector4.clamp(triangle.color.rgba, 0, 1);
     }
-
-    // Clamp & Format Color
-    FSS.Vector3.clamp(triangle.color.rgb, 0, 1);
   }
   return this;
 };
@@ -639,7 +731,7 @@ FSS.CanvasRenderer.prototype.render = function(scene) {
   for (m = scene.meshes.length - 1; m >= 0; m--) {
     mesh = scene.meshes[m];
     if (mesh.visible) {
-      mesh.update(scene.lights);
+      mesh.update(scene.lights, true);
 
       // Render Triangles
       for (t = mesh.geometry.triangles.length - 1; t >= 0; t--) {
@@ -658,6 +750,410 @@ FSS.CanvasRenderer.prototype.render = function(scene) {
     }
   }
   return this;
+};
+
+/**
+ * @class WebGL Renderer
+ * @author Matthew Wagerfield
+ */
+FSS.WebGLRenderer = function() {
+  FSS.Renderer.call(this);
+  this.element = document.createElement('canvas');
+  this.element.style.display = 'block';
+
+  // Set initial vertex and light count
+  this.vertices = null;
+  this.lights = null;
+
+  // Create parameters object
+  var parameters = {
+    preserveDrawingBuffer: false,
+    premultipliedAlpha: true,
+    antialias: true,
+    stencil: true,
+    alpha: true
+  };
+
+  // Create and configure the gl context
+  this.gl = this.getContext(this.element, parameters);
+
+  // Set the internal support flag
+  this.unsupported = !this.gl;
+
+  // Setup renderer
+  if (this.unsupported) {
+    return 'WebGL is not supported by your browser.';
+  } else {
+    this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    this.gl.enable(this.gl.DEPTH_TEST);
+    this.setSize(this.element.width, this.element.height);
+  }
+};
+
+FSS.WebGLRenderer.prototype = Object.create(FSS.Renderer.prototype);
+
+FSS.WebGLRenderer.prototype.getContext = function(canvas, parameters) {
+  var context = false;
+  try {
+    if (!(context = canvas.getContext('experimental-webgl', parameters))) {
+      throw 'Error creating WebGL context.';
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return context;
+};
+
+FSS.WebGLRenderer.prototype.setSize = function(width, height) {
+  FSS.Renderer.prototype.setSize.call(this, width, height);
+  if (this.unsupported) return;
+
+  // Set the size of the canvas element
+  this.element.width = width;
+  this.element.height = height;
+
+  // Set the size of the gl viewport
+  this.gl.viewport(0, 0, width, height);
+  return this;
+};
+
+FSS.WebGLRenderer.prototype.clear = function() {
+  FSS.Renderer.prototype.clear.call(this);
+  if (this.unsupported) return;
+  this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+  return this;
+};
+
+FSS.WebGLRenderer.prototype.render = function(scene) {
+  FSS.Renderer.prototype.render.call(this, scene);
+  if (this.unsupported) return;
+  var m,mesh, t,tl,triangle, l,light, attribute,uniform,buffer,l,d,
+      update = false, lights = scene.lights.length,
+      index, v,vl,vetex,vertices = 0;
+
+  // Clear context
+  this.clear();
+
+  // Build the shader program
+  if (this.lights !== lights) {
+    this.lights = lights;
+    if (this.lights > 0) {
+      this.buildProgram(lights);
+    } else {
+      return;
+    }
+  }
+
+  // Update program
+  if (!!this.program) {
+
+    // Increment vertex counter
+    for (m = scene.meshes.length - 1; m >= 0; m--) {
+      mesh = scene.meshes[m];
+      if (mesh.geometry.dirty) update = true;
+      mesh.update(scene.lights, false);
+      vertices += mesh.geometry.triangles.length*3;
+    }
+
+    // Compare vertex counter
+    if (update || this.vertices !== vertices) {
+      this.vertices = vertices;
+
+      // Build buffers
+      for (attribute in this.program.attributes) {
+        buffer = this.program.attributes[attribute];
+        buffer.data = new FSS.Array(vertices*buffer.size);
+
+        // Reset vertex index
+        index = 0;
+
+        // Update attribute buffer data
+        for (m = scene.meshes.length - 1; m >= 0; m--) {
+          mesh = scene.meshes[m];
+
+          for (t = 0, tl = mesh.geometry.triangles.length; t < tl; t++) {
+            triangle = mesh.geometry.triangles[t];
+
+            for (v = 0, vl = triangle.vertices.length; v < vl; v++) {
+              vertex = triangle.vertices[v];
+              switch (attribute) {
+                case 'side':
+                  this.setBufferData(index, buffer, mesh.side);
+                  break;
+                case 'position':
+                  this.setBufferData(index, buffer, vertex.position);
+                  break;
+                case 'centroid':
+                  this.setBufferData(index, buffer, triangle.centroid);
+                  break;
+                case 'normal':
+                  this.setBufferData(index, buffer, triangle.normal);
+                  break;
+                case 'ambient':
+                  this.setBufferData(index, buffer, mesh.material.ambient.rgba);
+                  break;
+                case 'diffuse':
+                  this.setBufferData(index, buffer, mesh.material.diffuse.rgba);
+                  break;
+              }
+              index++;
+            }
+          }
+        }
+
+        // Upload attribute buffer data
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer.buffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, buffer.data, this.gl.DYNAMIC_DRAW);
+        this.gl.enableVertexAttribArray(buffer.location);
+        this.gl.vertexAttribPointer(buffer.location, buffer.size, this.gl.FLOAT, false, 0, 0);
+      }
+    }
+
+    // Build uniform buffers
+    this.setBufferData(0, this.program.uniforms.resolution, [this.width, this.height, this.width]);
+    for (l = lights-1; l >= 0; l--) {
+      light = scene.lights[l];
+      this.setBufferData(l, this.program.uniforms.lightPosition, light.position);
+      this.setBufferData(l, this.program.uniforms.lightAmbient, light.ambient.rgba);
+      this.setBufferData(l, this.program.uniforms.lightDiffuse, light.diffuse.rgba);
+    }
+
+    // Update uniforms
+    for (uniform in this.program.uniforms) {
+      buffer = this.program.uniforms[uniform];
+      l = buffer.location;
+      d = buffer.data;
+      switch (buffer.structure) {
+        case '3f':
+          this.gl.uniform3f(l, d[0], d[1], d[2]);
+          break;
+        case '3fv':
+          this.gl.uniform3fv(l, d);
+          break;
+        case '4fv':
+          this.gl.uniform4fv(l, d);
+          break;
+      }
+    }
+  }
+
+  // Draw those lovely triangles
+  this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertices);
+  return this;
+};
+
+FSS.WebGLRenderer.prototype.setBufferData = function(index, buffer, value) {
+  if (FSS.Utils.isNumber(value)) {
+    buffer.data[index*buffer.size] = value;
+  } else {
+    for (var i = value.length - 1; i >= 0; i--) {
+      buffer.data[index*buffer.size+i] = value[i];
+    }
+  }
+};
+
+/**
+ * Concepts taken from three.js WebGLRenderer
+ * @see https://github.com/mrdoob/three.js/blob/master/src/renderers/WebGLRenderer.js
+ */
+FSS.WebGLRenderer.prototype.buildProgram = function(lights) {
+  if (this.unsupported) return;
+
+  // Create shader source
+  var vs = FSS.WebGLRenderer.VS(lights);
+  var fs = FSS.WebGLRenderer.FS(lights);
+
+  // Derive the shader fingerprint
+  var code = vs + fs;
+
+  // Check if the program has already been compiled
+  if (!!this.program && this.program.code === code) return;
+
+  // Create the program and shaders
+  var program = this.gl.createProgram();
+  var vertexShader = this.buildShader(this.gl.VERTEX_SHADER, vs);
+  var fragmentShader = this.buildShader(this.gl.FRAGMENT_SHADER, fs);
+
+  // Attach an link the shader
+  this.gl.attachShader(program, vertexShader);
+  this.gl.attachShader(program, fragmentShader);
+  this.gl.linkProgram(program);
+
+  // Add error handling
+  if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
+    var error = this.gl.getError();
+    var status = this.gl.getProgramParameter(program, this.gl.VALIDATE_STATUS);
+    console.error('Could not initialise shader.\nVALIDATE_STATUS: '+status+'\nERROR: '+error);
+    return null;
+  }
+
+  // Delete the shader
+  this.gl.deleteShader(fragmentShader);
+  this.gl.deleteShader(vertexShader);
+
+  // Set the program code
+  program.code = code;
+
+  // Add the program attributes
+  program.attributes = {
+    side:     this.buildBuffer(program, 'attribute', 'aSide',     1, 'f' ),
+    position: this.buildBuffer(program, 'attribute', 'aPosition', 3, 'v3'),
+    centroid: this.buildBuffer(program, 'attribute', 'aCentroid', 3, 'v3'),
+    normal:   this.buildBuffer(program, 'attribute', 'aNormal',   3, 'v3'),
+    ambient:  this.buildBuffer(program, 'attribute', 'aAmbient',  4, 'v4'),
+    diffuse:  this.buildBuffer(program, 'attribute', 'aDiffuse',  4, 'v4')
+  };
+
+  // Add the program uniforms
+  program.uniforms = {
+    resolution:    this.buildBuffer(program, 'uniform', 'uResolution',    3, '3f',  1     ),
+    lightPosition: this.buildBuffer(program, 'uniform', 'uLightPosition', 3, '3fv', lights),
+    lightAmbient:  this.buildBuffer(program, 'uniform', 'uLightAmbient',  4, '4fv', lights),
+    lightDiffuse:  this.buildBuffer(program, 'uniform', 'uLightDiffuse',  4, '4fv', lights)
+  };
+
+  // Set the renderer program
+  this.program = program;
+
+  // Enable program
+  this.gl.useProgram(this.program);
+
+  // Return the program
+  return program;
+};
+
+FSS.WebGLRenderer.prototype.buildShader = function(type, source) {
+  if (this.unsupported) return;
+
+  // Create and compile shader
+  var shader = this.gl.createShader(type);
+  this.gl.shaderSource(shader, source);
+  this.gl.compileShader(shader);
+
+  // Add error handling
+  if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+    console.error(this.gl.getShaderInfoLog(shader));
+    return null;
+  }
+
+  // Return the shader
+  return shader;
+};
+
+FSS.WebGLRenderer.prototype.buildBuffer = function(program, type, identifier, size, structure, count) {
+  var buffer = {buffer:this.gl.createBuffer(), size:size, structure:structure, data:null};
+
+  // Set the location
+  switch (type) {
+    case 'attribute':
+      buffer.location = this.gl.getAttribLocation(program, identifier);
+      break;
+    case 'uniform':
+      buffer.location = this.gl.getUniformLocation(program, identifier);
+      break;
+  }
+
+  // Create the buffer if count is provided
+  if (!!count) {
+    buffer.data = new FSS.Array(count*size);
+  }
+
+  // Return the buffer
+  return buffer;
+};
+
+FSS.WebGLRenderer.VS = function(lights) {
+  var shader = [
+
+  // Precision
+  'precision mediump float;',
+
+  // Lights
+  '#define LIGHTS ' + lights,
+
+  // Attributes
+  'attribute float aSide;',
+  'attribute vec3 aPosition;',
+  'attribute vec3 aCentroid;',
+  'attribute vec3 aNormal;',
+  'attribute vec4 aAmbient;',
+  'attribute vec4 aDiffuse;',
+
+  // Uniforms
+  'uniform vec3 uResolution;',
+  'uniform vec3 uLightPosition[LIGHTS];',
+  'uniform vec4 uLightAmbient[LIGHTS];',
+  'uniform vec4 uLightDiffuse[LIGHTS];',
+
+  // Varyings
+  'varying vec4 vColor;',
+
+  // Main
+  'void main() {',
+
+    // Create color
+    'vColor = vec4(0.0);',
+
+    // Calculate the vertex position
+    'vec3 position = aPosition / uResolution * 2.0;',
+
+    // Iterate through lights
+    'for (int i = 0; i < LIGHTS; i++) {',
+      'vec3 lightPosition = uLightPosition[i];',
+      'vec4 lightAmbient = uLightAmbient[i];',
+      'vec4 lightDiffuse = uLightDiffuse[i];',
+
+      // Calculate illuminance
+      'vec3 ray = normalize(lightPosition - aCentroid);',
+      'float illuminance = dot(aNormal, ray);',
+      'if (aSide == 0.0) {',
+        'illuminance = max(illuminance, 0.0);',
+      '} else if (aSide == 1.0) {',
+        'illuminance = abs(min(illuminance, 0.0));',
+      '} else if (aSide == 2.0) {',
+        'illuminance = max(abs(illuminance), 0.0);',
+      '}',
+
+      // Calculate ambient light
+      'vColor += aAmbient * lightAmbient;',
+
+      // Calculate diffuse light
+      'vColor += aDiffuse * lightDiffuse * illuminance;',
+    '}',
+
+    // Clamp color
+    'vColor = clamp(vColor, 0.0, 1.0);',
+
+    // Set gl_Position
+    'gl_Position = vec4(position, 1.0);',
+
+  '}'
+
+  // Return the shader
+  ].join('\n');
+  return shader;
+};
+
+FSS.WebGLRenderer.FS = function(lights) {
+  var shader = [
+
+  // Precision
+  'precision mediump float;',
+
+  // Varyings
+  'varying vec4 vColor;',
+
+  // Main
+  'void main() {',
+
+    // Set gl_FragColor
+    'gl_FragColor = vColor;',
+
+  '}'
+
+  // Return the shader
+  ].join('\n');
+  return shader;
 };
 
 /**
@@ -698,7 +1194,7 @@ FSS.SVGRenderer.prototype.render = function(scene) {
   for (m = scene.meshes.length - 1; m >= 0; m--) {
     mesh = scene.meshes[m];
     if (mesh.visible) {
-      mesh.update(scene.lights);
+      mesh.update(scene.lights, true);
 
       // Render Triangles
       for (t = mesh.geometry.triangles.length - 1; t >= 0; t--) {

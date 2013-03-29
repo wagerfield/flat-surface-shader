@@ -6,6 +6,7 @@ FSS.Triangle = function(a, b, c) {
   this.a = a || new FSS.Vertex();
   this.b = b || new FSS.Vertex();
   this.c = c || new FSS.Vertex();
+  this.vertices = [this.a, this.b, this.c];
   this.u = FSS.Vector3.create();
   this.v = FSS.Vector3.create();
   this.centroid = FSS.Vector3.create();

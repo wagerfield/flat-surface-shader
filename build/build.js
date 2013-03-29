@@ -12,6 +12,7 @@ var FILE_ENCODING = 'utf-8',
         'Core.js',
         'Math.js',
         'Vector3.js',
+        'Vector4.js',
         'Color.js',
         'Object.js',
         'Light.js',
@@ -24,6 +25,7 @@ var FILE_ENCODING = 'utf-8',
         'Scene.js',
         'Renderer.js',
         'CanvasRenderer.js',
+        'WebGLRenderer.js',
         'SVGRenderer.js'
     ];
 
