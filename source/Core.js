@@ -16,6 +16,16 @@ FSS = {
 FSS.Array = typeof Float32Array === 'function' ? Float32Array : Array;
 
 /**
+ * @class Utils
+ * @author Matthew Wagerfield
+ */
+FSS.Utils = {
+  isNumber: function(value) {
+    return !isNaN(parseFloat(value)) && isFinite(value);
+  }
+};
+
+/**
  * Request Animation Frame Polyfill.
  * @author Paul Irish
  * @see https://gist.github.com/paulirish/1579671

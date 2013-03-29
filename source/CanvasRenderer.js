@@ -41,7 +41,7 @@ FSS.CanvasRenderer.prototype.render = function(scene) {
   for (m = scene.meshes.length - 1; m >= 0; m--) {
     mesh = scene.meshes[m];
     if (mesh.visible) {
-      mesh.update(scene.lights);
+      mesh.update(scene.lights, true);
 
       // Render Triangles
       for (t = mesh.geometry.triangles.length - 1; t >= 0; t--) {

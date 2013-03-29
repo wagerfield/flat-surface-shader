@@ -12,47 +12,51 @@ FSS.Mesh = function(geometry, material) {
 
 FSS.Mesh.prototype = Object.create(FSS.Object.prototype);
 
-FSS.Mesh.prototype.update = function(lights) {
+FSS.Mesh.prototype.update = function(lights, calculate) {
   var t,triangle, l,light, illuminance;
 
   // Update Geometry
   this.geometry.update();
 
-  // Iterate through Triangles
-  for (t = this.geometry.triangles.length - 1; t >= 0; t--) {
-    triangle = this.geometry.triangles[t];
+  // Calculate the triangle colors
+  if (calculate) {
 
-    // Reset Triangle Color
-    FSS.Vector3.set(triangle.color.rgb);
+    // Iterate through Triangles
+    for (t = this.geometry.triangles.length - 1; t >= 0; t--) {
+      triangle = this.geometry.triangles[t];
 
-    // Iterate through Lights
-    for (l = lights.length - 1; l >= 0; l--) {
-      light = lights[l];
+      // Reset Triangle Color
+      FSS.Vector4.set(triangle.color.rgba);
 
-      // Calculate Illuminance
-      FSS.Vector3.subtractVectors(light.ray, light.position, triangle.centroid);
-      FSS.Vector3.normalise(light.ray);
-      illuminance = FSS.Vector3.dot(triangle.normal, light.ray);
-      if (this.side === FSS.FRONT) {
-        illuminance = Math.max(illuminance, 0);
-      } else if (this.side === FSS.BACK) {
-        illuminance = Math.abs(Math.min(illuminance, 0));
-      } else if (this.side === FSS.DOUBLE) {
-        illuminance = Math.max(Math.abs(illuminance), 0);
+      // Iterate through Lights
+      for (l = lights.length - 1; l >= 0; l--) {
+        light = lights[l];
+
+        // Calculate Illuminance
+        FSS.Vector3.subtractVectors(light.ray, light.position, triangle.centroid);
+        FSS.Vector3.normalise(light.ray);
+        illuminance = FSS.Vector3.dot(triangle.normal, light.ray);
+        if (this.side === FSS.FRONT) {
+          illuminance = Math.max(illuminance, 0);
+        } else if (this.side === FSS.BACK) {
+          illuminance = Math.abs(Math.min(illuminance, 0));
+        } else if (this.side === FSS.DOUBLE) {
+          illuminance = Math.max(Math.abs(illuminance), 0);
+        }
+
+        // Calculate Ambient Light
+        FSS.Vector4.multiplyVectors(this.material.slave.rgba, this.material.ambient.rgba, light.ambient.rgba);
+        FSS.Vector4.add(triangle.color.rgba, this.material.slave.rgba);
+
+        // Calculate Diffuse Light
+        FSS.Vector4.multiplyVectors(this.material.slave.rgba, this.material.diffuse.rgba, light.diffuse.rgba);
+        FSS.Vector4.multiplyScalar(this.material.slave.rgba, illuminance);
+        FSS.Vector4.add(triangle.color.rgba, this.material.slave.rgba);
       }
 
-      // Calculate Ambient Light
-      FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.ambient.rgb, light.ambient.rgb);
-      FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
-
-      // Calculate Diffuse Light
-      FSS.Vector3.multiplyVectors(this.material.slave.rgb, this.material.diffuse.rgb, light.diffuse.rgb);
-      FSS.Vector3.multiplyScalar(this.material.slave.rgb, illuminance);
-      FSS.Vector3.add(triangle.color.rgb, this.material.slave.rgb);
+      // Clamp & Format Color
+      FSS.Vector4.clamp(triangle.color.rgba, 0, 1);
     }
-
-    // Clamp & Format Color
-    FSS.Vector3.clamp(triangle.color.rgb, 0, 1);
   }
   return this;
 };
