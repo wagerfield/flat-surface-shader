@@ -4,24 +4,14 @@
   // Mesh Properties
   //------------------------------
   var MESH = {
-    // width: 1.2,
-    // height: 1.2,
-    // depth: 10,
-    // segments: 16,
-    // slices: 8,
-    // xRange: 0.8,
-    // yRange: 0.1,
-    // zRange: 1.0,
-
-    width: 0.5,
-    height: 0.8,
-    depth: 8,
-    segments: 8,
-    slices: 4,
-    xRange: 0.2,
+    width: 1.2,
+    height: 1.2,
+    depth: 10,
+    segments: 16,
+    slices: 8,
+    xRange: 0.8,
     yRange: 0.1,
     zRange: 1.0,
-
     ambient: '#555555',
     diffuse: '#FFFFFF',
     speed: 0.002
@@ -60,7 +50,7 @@
   var CANVAS = 'canvas';
   var SVG = 'svg';
   var RENDER = {
-    renderer: SVG
+    renderer: CANVAS
   };
 
   //------------------------------
