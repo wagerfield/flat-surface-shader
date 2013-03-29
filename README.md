@@ -28,7 +28,7 @@ A **Mesh** is constructed from a **Geometry** object and a **Material** object. 
 
 ### Scene
 
-A **Scene** sits at the very top of the stack. It simply manages an array of **Mesh** & **Light** objects.
+A **Scene** sits at the very top of the stack. It simply manages arrays of **Mesh** & **Light** objects.
 
 ### Renderer
 
