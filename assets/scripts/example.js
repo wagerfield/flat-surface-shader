@@ -46,8 +46,9 @@
   //------------------------------
   // Render Properties
   //------------------------------
-  var SVG = 'svg';
+  var WEBGL = 'webgl';
   var CANVAS = 'canvas';
+  var SVG = 'svg';
   var RENDER = {
     renderer: CANVAS
   };
@@ -89,6 +90,7 @@
       render();
 
       switch(RENDER.renderer) {
+        case WEBGL:
         case CANVAS:
           window.open(canvasRenderer.element.toDataURL(), '_blank');
           break;
@@ -126,7 +128,7 @@
   var output = document.getElementById('output');
   var ui = document.getElementById('ui');
   var renderer, scene, mesh, geometry, material;
-  var canvasRenderer, svgRenderer;
+  var webglRenderer, canvasRenderer, svgRenderer;
   var gui, autopilotController;
 
   //------------------------------
@@ -144,8 +146,9 @@
   }
 
   function createRenderer() {
-    svgRenderer = new FSS.SVGRenderer();
+    webglRenderer = new FSS.WebGLRenderer();
     canvasRenderer = new FSS.CanvasRenderer();
+    svgRenderer = new FSS.SVGRenderer();
     setRenderer(RENDER.renderer);
   }
 
@@ -154,6 +157,9 @@
       output.removeChild(renderer.element);
     }
     switch(index) {
+      case WEBGL:
+        renderer = webglRenderer;
+        break;
       case CANVAS:
         renderer = canvasRenderer;
         break;
@@ -368,7 +374,7 @@
     });
 
     // Add Render Controls
-    controller = renderFolder.add(RENDER, 'renderer', {canvas:CANVAS, svg:SVG});
+    controller = renderFolder.add(RENDER, 'renderer', {webgl:WEBGL, canvas:CANVAS, svg:SVG});
     controller.onChange(function(value) {
       setRenderer(value);
     });

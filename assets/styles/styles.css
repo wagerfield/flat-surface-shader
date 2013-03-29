@@ -144,6 +144,12 @@ a:hover {
   float: left;
 }
 
+.links li .design:before {
+  opacity: 0.5;
+  content: '△';
+  float: left;
+}
+
 .vignette {
   background-image: radial-gradient(50% 50%, ellipse, rgba(0,0,0,0) 40%, rgba(0,0,0,1) 100%);
 }
