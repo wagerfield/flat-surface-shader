@@ -827,7 +827,8 @@ FSS.WebGLRenderer.prototype.clear = function() {
 FSS.WebGLRenderer.prototype.render = function(scene) {
   FSS.Renderer.prototype.render.call(this, scene);
   if (this.unsupported) return;
-  var m,mesh, t,tl,triangle, l,light, attribute,uniform,buffer,l,d,
+  var m,mesh, t,tl,triangle, l,light,
+      attribute, uniform, buffer, data, location,
       update = false, lights = scene.lights.length,
       index, v,vl,vetex,vertices = 0;
 
@@ -921,17 +922,17 @@ FSS.WebGLRenderer.prototype.render = function(scene) {
     // Update uniforms
     for (uniform in this.program.uniforms) {
       buffer = this.program.uniforms[uniform];
-      l = buffer.location;
-      d = buffer.data;
+      location = buffer.location;
+      data = buffer.data;
       switch (buffer.structure) {
         case '3f':
-          this.gl.uniform3f(l, d[0], d[1], d[2]);
+          this.gl.uniform3f(location, data[0], data[1], data[2]);
           break;
         case '3fv':
-          this.gl.uniform3fv(l, d);
+          this.gl.uniform3fv(location, data);
           break;
         case '4fv':
-          this.gl.uniform4fv(l, d);
+          this.gl.uniform4fv(location, data);
           break;
       }
     }
