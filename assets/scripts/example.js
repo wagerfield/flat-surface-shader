@@ -91,6 +91,8 @@
 
       switch(RENDER.renderer) {
         case WEBGL:
+          window.open(webglRenderer.element.toDataURL(), '_blank');
+          break;
         case CANVAS:
           window.open(canvasRenderer.element.toDataURL(), '_blank');
           break;
