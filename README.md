@@ -86,11 +86,15 @@ Build:
 
 ## Inspiration
 
+Please also checkout the [case study on Behance][behance] created by my dear friend [Tobias van Schneider][vanschneider] – [@schneidertobias][schneidertobias].
+
+## Acknowledgments
+
 The architecture of this project was heavily influenced by [three.js][three] and the implementation of the Vector calculations was taken from [glMatrix][glmatrix].
 
 ## Author
 
-Matthew Wagerfield: [@mwagerfield][twitter]
+Matthew Wagerfield: [@mwagerfield][mwagerfield]
 
 ## License
 
@@ -104,7 +108,10 @@ Licensed under [MIT][mit]. Enjoy.
 [normal]: http://en.wikipedia.org/wiki/Normal_(geometry)
 [normalise]: http://www.fundza.com/vectors/normalize/index.html
 [dotproduct]: http://www.mathsisfun.com/algebra/vectors-dot-product.html
+[behance]: http://www.behance.net/gallery/Flat-Surface-Shader/7826469
 [three]: https://github.com/mrdoob/three.js/
 [glmatrix]: https://github.com/toji/gl-matrix
-[twitter]: http://twitter.com/mwagerfield
+[mwagerfield]: http://twitter.com/mwagerfield
+[vanschneider]: http://www.vanschneider.com/
+[schneidertobias]: http://twitter.com/schneidertobias
 [mit]: http://www.opensource.org/licenses/mit-license.php
