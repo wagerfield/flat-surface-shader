@@ -57,7 +57,7 @@ FSS.SVGRenderer.prototype.render = function(scene) {
 };
 
 FSS.SVGRenderer.prototype.formatPoint = function(vertex) {
-  return (this.halfWidth+vertex.position[0])+','+(this.halfHeight+vertex.position[1]);
+  return (this.halfWidth+vertex.position[0])+','+(this.halfHeight-vertex.position[1]);
 };
 
 FSS.SVGRenderer.prototype.formatStyle = function(color) {
