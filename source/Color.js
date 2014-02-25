@@ -34,10 +34,7 @@ FSS.Color.prototype = {
   setHex: function(hex) {
     hex = hex.replace('#', '');
     if (hex.length == 3) {
-      var hr = hex.substr(0, 1) + hex.substr(0, 1);
-      var hg = hex.substr(1, 1) + hex.substr(1, 1);
-      var hb = hex.substr(2, 1) + hex.substr(2, 1);
-      hex = hr + hg + hb;
+      hex = hex.replace(/(\w)/g, '$1$1');
     }
     this.hex = '#' + hex;
     return this.hex;
