@@ -378,7 +378,7 @@ FSS.Vector4 = {
  */
 FSS.Color = function(hex, opacity) {
   this.rgba = FSS.Vector4.create();
-  this.hex = hex || '#000000';
+  this.setHex(hex || '#000000');
   this.opacity = FSS.Utils.isNumber(opacity) ? opacity : 1;
   this.set(this.hex, this.opacity);
 };
@@ -403,6 +403,17 @@ FSS.Color.prototype = {
     var g = this.hexify(this.rgba[1]);
     var b = this.hexify(this.rgba[2]);
     this.hex = '#' + r + g + b;
+    return this.hex;
+  },
+  setHex: function(hex) {
+    hex = hex.replace('#', '');
+    if (hex.length == 3) {
+      var hr = hex.substr(0, 1) + hex.substr(0, 1);
+      var hg = hex.substr(1, 1) + hex.substr(1, 1);
+      var hb = hex.substr(2, 1) + hex.substr(2, 1);
+      hex = hr + hg + hb;
+    }
+    this.hex = '#' + hex;
     return this.hex;
   }
 };
