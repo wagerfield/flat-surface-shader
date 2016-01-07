@@ -84,17 +84,13 @@ Build:
 
     node build.js
 
-## Inspiration
-
-Please also checkout the [case study on Behance][behance] created by my dear friend [Tobias van Schneider][vanschneider] – [@schneidertobias][schneidertobias].
-
 ## Acknowledgments
 
 The architecture of this project was heavily influenced by [three.js][three] and the implementation of the Vector calculations was taken from [glMatrix][glmatrix].
 
 ## Author
 
-Matthew Wagerfield: [@mwagerfield][mwagerfield]
+Matthew Wagerfield: [@wagerfield][wagerfield]
 
 ## License
 
@@ -111,7 +107,7 @@ Licensed under [MIT][mit]. Enjoy.
 [behance]: http://www.behance.net/gallery/Flat-Surface-Shader/7826469
 [three]: https://github.com/mrdoob/three.js/
 [glmatrix]: https://github.com/toji/gl-matrix
-[mwagerfield]: http://twitter.com/mwagerfield
+[wagerfield]: http://twitter.com/wagerfield
 [vanschneider]: http://www.vanschneider.com/
 [schneidertobias]: http://twitter.com/schneidertobias
 [mit]: http://www.opensource.org/licenses/mit-license.php
